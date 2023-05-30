@@ -1,41 +1,37 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.server.structures;
 
 public interface StructureSupport {
-    public boolean supports(StructureSupport var1);
+   boolean supports(StructureSupport var1);
 
-    public int getFloorLevel();
+   int getFloorLevel();
 
-    public int getStartX();
+   int getStartX();
 
-    public int getStartY();
+   int getStartY();
 
-    public int getMinX();
+   int getMinX();
 
-    public int getMinY();
+   int getMinY();
 
-    public boolean isHorizontal();
+   boolean isHorizontal();
 
-    public boolean isFloor();
+   boolean isFloor();
 
-    public boolean isFence();
+   boolean isFence();
 
-    public boolean isWall();
+   boolean isWall();
 
-    public int getEndX();
+   int getEndX();
 
-    public int getEndY();
+   int getEndY();
 
-    public boolean isSupportedByGround();
+   boolean isSupportedByGround();
 
-    public boolean supports();
+   boolean supports();
 
-    public String getName();
+   String getName();
 
-    public long getId();
+   long getId();
 
-    public boolean equals(StructureSupport var1);
+   boolean equals(StructureSupport var1);
 }
-

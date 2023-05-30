@@ -1,24 +1,19 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.server.skills;
 
 import com.wurmonline.shared.exceptions.WurmServerException;
 
-public class SkillNeededException
-extends WurmServerException {
-    private static final long serialVersionUID = 928122916198689152L;
+public class SkillNeededException extends WurmServerException {
+   private static final long serialVersionUID = 928122916198689152L;
 
-    public SkillNeededException(String message) {
-        super(message);
-    }
+   public SkillNeededException(String message) {
+      super(message);
+   }
 
-    public SkillNeededException(Throwable cause) {
-        super(cause);
-    }
+   public SkillNeededException(Throwable cause) {
+      super(cause);
+   }
 
-    public SkillNeededException(String message, Throwable cause) {
-        super(message, cause);
-    }
+   public SkillNeededException(String message, Throwable cause) {
+      super(message, cause);
+   }
 }
-

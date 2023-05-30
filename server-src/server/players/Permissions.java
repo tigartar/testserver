@@ -1,317 +1,310 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.server.players;
 
 import java.util.BitSet;
 
 public class Permissions {
-    private int permissions = 0;
-    protected BitSet permissionBits = new BitSet(32);
+   private int permissions = 0;
+   protected BitSet permissionBits = new BitSet(32);
 
-    public void setPermissionBits(int newPermissions) {
-        this.permissions = newPermissions;
-        this.permissionBits.clear();
-        for (int x = 0; x < 32; ++x) {
-            if ((newPermissions >>> x & 1) != 1) continue;
+   public void setPermissionBits(int newPermissions) {
+      this.permissions = newPermissions;
+      this.permissionBits.clear();
+
+      for(int x = 0; x < 32; ++x) {
+         if ((newPermissions >>> x & 1) == 1) {
             this.permissionBits.set(x);
-        }
-    }
+         }
+      }
+   }
 
-    public final boolean hasPermission(int permissionBit) {
-        if (this.permissions != 0) {
-            return this.permissionBits.get(permissionBit);
-        }
-        return false;
-    }
+   public final boolean hasPermission(int permissionBit) {
+      return this.permissions != 0 ? this.permissionBits.get(permissionBit) : false;
+   }
 
-    private final int getPermissionsInt() {
-        int ret = 0;
-        for (int x = 0; x < 32; ++x) {
-            if (!this.permissionBits.get(x)) continue;
+   private final int getPermissionsInt() {
+      int ret = 0;
+
+      for(int x = 0; x < 32; ++x) {
+         if (this.permissionBits.get(x)) {
             ret = (int)((long)ret + (1L << x));
-        }
-        return ret;
-    }
-
-    public final void setPermissionBit(int bit, boolean value) {
-        this.permissionBits.set(bit, value);
-        this.permissions = this.getPermissionsInt();
-    }
-
-    public int getPermissions() {
-        return this.permissions;
-    }
-
-    public static enum Allow implements IPermission
-    {
-        SETTLEMENT_MAY_MANAGE(0, "Allow Settlememnt to Manage", "Allow", "Manage", ""),
-        NOT_RUNEABLE(7, "Item Attributes", "Cannot be", "Runed", ""),
-        SEALED_BY_PLAYER(8, "Item Attributes", "Cannot", "Take / Put / Eat or Drink", ""),
-        NO_EAT_OR_DRINK(9, "Item Attributes", "Cannot", "Eat or Drink", ""),
-        OWNER_TURNABLE(10, "Item Attributes", "Turnable", "by Owner", ""),
-        OWNER_MOVEABLE(11, "Item Attributes", "Moveable", "by Owner", ""),
-        NO_DRAG(12, "Item Attributes", "Cannot be", "Dragged", ""),
-        NO_IMPROVE(13, "Item Attributes", "Cannot be", "Improved", ""),
-        NO_DROP(14, "Item Attributes", "Cannot be", "Dropped", ""),
-        NO_REPAIR(15, "Item Attributes", "Cannot be", "Repaired", ""),
-        PLANTED(16, "Item Attributes", "Is", "Planted", ""),
-        AUTO_FILL(17, "Item Attributes", "Auto", "Fills", ""),
-        AUTO_LIGHT(18, "Item Attributes", "Auto", "Lights", ""),
-        ALWAYS_LIT(19, "Item Attributes", "Always", "Lit", ""),
-        HAS_COURIER(20, "Item Attributes", "Has", "Courier", ""),
-        HAS_DARK_MESSENGER(21, "Item Attributes", "Has", "Dark Messanger", ""),
-        DECAY_DISABLED(22, "Item Attributes", "Decay", "Disabled", ""),
-        NO_TAKE(23, "Item Attributes", "Cannot be", "Taken", ""),
-        NO_SPELLS(24, "Item Restrictions", "Cannot be", "Cast Upon", ""),
-        NO_BASH(25, "Item Restrictions", "Cannot be", "Bashed / Destroyed", ""),
-        NOT_LOCKABLE(26, "Item Restrictions", "Cannot be", "Locked", ""),
-        NOT_LOCKPICKABLE(27, "Item Restrictions", "Cannot be", "Lockpicked", ""),
-        NOT_MOVEABLE(28, "Item Restrictions", "Cannot be", "Moved", ""),
-        NOT_TURNABLE(29, "Item Restrictions", "Cannot be", "Turned", ""),
-        NOT_PAINTABLE(30, "Item Restrictions", "Cannot be", "Painted", ""),
-        NO_PUT(31, "Item Attributes", "Cannot", "Put items inside", "");
+         }
+      }
+
+      return ret;
+   }
+
+   public final void setPermissionBit(int bit, boolean value) {
+      this.permissionBits.set(bit, value);
+      this.permissions = this.getPermissionsInt();
+   }
+
+   public int getPermissions() {
+      return this.permissions;
+   }
+
+   public static enum Allow implements Permissions.IPermission {
+      SETTLEMENT_MAY_MANAGE(0, "Allow Settlememnt to Manage", "Allow", "Manage", ""),
+      NOT_RUNEABLE(7, "Item Attributes", "Cannot be", "Runed", ""),
+      SEALED_BY_PLAYER(8, "Item Attributes", "Cannot", "Take / Put / Eat or Drink", ""),
+      NO_EAT_OR_DRINK(9, "Item Attributes", "Cannot", "Eat or Drink", ""),
+      OWNER_TURNABLE(10, "Item Attributes", "Turnable", "by Owner", ""),
+      OWNER_MOVEABLE(11, "Item Attributes", "Moveable", "by Owner", ""),
+      NO_DRAG(12, "Item Attributes", "Cannot be", "Dragged", ""),
+      NO_IMPROVE(13, "Item Attributes", "Cannot be", "Improved", ""),
+      NO_DROP(14, "Item Attributes", "Cannot be", "Dropped", ""),
+      NO_REPAIR(15, "Item Attributes", "Cannot be", "Repaired", ""),
+      PLANTED(16, "Item Attributes", "Is", "Planted", ""),
+      AUTO_FILL(17, "Item Attributes", "Auto", "Fills", ""),
+      AUTO_LIGHT(18, "Item Attributes", "Auto", "Lights", ""),
+      ALWAYS_LIT(19, "Item Attributes", "Always", "Lit", ""),
+      HAS_COURIER(20, "Item Attributes", "Has", "Courier", ""),
+      HAS_DARK_MESSENGER(21, "Item Attributes", "Has", "Dark Messanger", ""),
+      DECAY_DISABLED(22, "Item Attributes", "Decay", "Disabled", ""),
+      NO_TAKE(23, "Item Attributes", "Cannot be", "Taken", ""),
+      NO_SPELLS(24, "Item Restrictions", "Cannot be", "Cast Upon", ""),
+      NO_BASH(25, "Item Restrictions", "Cannot be", "Bashed / Destroyed", ""),
+      NOT_LOCKABLE(26, "Item Restrictions", "Cannot be", "Locked", ""),
+      NOT_LOCKPICKABLE(27, "Item Restrictions", "Cannot be", "Lockpicked", ""),
+      NOT_MOVEABLE(28, "Item Restrictions", "Cannot be", "Moved", ""),
+      NOT_TURNABLE(29, "Item Restrictions", "Cannot be", "Turned", ""),
+      NOT_PAINTABLE(30, "Item Restrictions", "Cannot be", "Painted", ""),
+      NO_PUT(31, "Item Attributes", "Cannot", "Put items inside", "");
 
-        final byte bit;
-        final String description;
-        final String header1;
-        final String header2;
-        final String hover;
-        private static final Allow[] types;
+      final byte bit;
+      final String description;
+      final String header1;
+      final String header2;
+      final String hover;
+      private static final Permissions.Allow[] types = values();
 
-        private Allow(int aBit, String aDescription, String aHeader1, String aHeader2, String aHover) {
-            this.bit = (byte)aBit;
-            this.description = aDescription;
-            this.header1 = aHeader1;
-            this.header2 = aHeader2;
-            this.hover = aHover;
-        }
+      private Allow(int aBit, String aDescription, String aHeader1, String aHeader2, String aHover) {
+         this.bit = (byte)aBit;
+         this.description = aDescription;
+         this.header1 = aHeader1;
+         this.header2 = aHeader2;
+         this.hover = aHover;
+      }
 
-        @Override
-        public byte getBit() {
-            return this.bit;
-        }
+      @Override
+      public byte getBit() {
+         return this.bit;
+      }
 
-        @Override
-        public int getValue() {
-            return 1 << this.bit;
-        }
+      @Override
+      public int getValue() {
+         return 1 << this.bit;
+      }
 
-        @Override
-        public String getDescription() {
-            return this.description;
-        }
+      @Override
+      public String getDescription() {
+         return this.description;
+      }
 
-        @Override
-        public String getHeader1() {
-            return this.header1;
-        }
+      @Override
+      public String getHeader1() {
+         return this.header1;
+      }
 
-        @Override
-        public String getHeader2() {
-            return this.header2;
-        }
+      @Override
+      public String getHeader2() {
+         return this.header2;
+      }
 
-        @Override
-        public String getHover() {
-            return this.hover;
-        }
+      @Override
+      public String getHover() {
+         return this.hover;
+      }
 
-        public static IPermission[] getPermissions() {
-            return types;
-        }
+      public static Permissions.IPermission[] getPermissions() {
+         return types;
+      }
+   }
 
-        static {
-            types = Allow.values();
-        }
-    }
+   public interface IAllow {
+      boolean canBeAlwaysLit();
 
-    public static interface IAllow {
-        public boolean canBeAlwaysLit();
+      boolean canBeAutoFilled();
 
-        public boolean canBeAutoFilled();
+      boolean canBeAutoLit();
 
-        public boolean canBeAutoLit();
+      boolean canBePeggedByPlayer();
 
-        public boolean canBePeggedByPlayer();
+      boolean canBePlanted();
 
-        public boolean canBePlanted();
+      boolean canBeSealedByPlayer();
 
-        public boolean canBeSealedByPlayer();
+      boolean canChangeCreator();
 
-        public boolean canChangeCreator();
+      boolean canDisableDecay();
 
-        public boolean canDisableDecay();
+      boolean canDisableDestroy();
 
-        public boolean canDisableDestroy();
+      boolean canDisableDrag();
 
-        public boolean canDisableDrag();
+      boolean canDisableDrop();
 
-        public boolean canDisableDrop();
+      boolean canDisableEatAndDrink();
 
-        public boolean canDisableEatAndDrink();
+      boolean canDisableImprove();
 
-        public boolean canDisableImprove();
+      boolean canDisableLocking();
 
-        public boolean canDisableLocking();
+      boolean canDisableLockpicking();
 
-        public boolean canDisableLockpicking();
+      boolean canDisableMoveable();
 
-        public boolean canDisableMoveable();
+      boolean canDisableOwnerMoveing();
 
-        public boolean canDisableOwnerMoveing();
+      boolean canDisableOwnerTurning();
 
-        public boolean canDisableOwnerTurning();
+      boolean canDisablePainting();
 
-        public boolean canDisablePainting();
+      boolean canDisablePut();
 
-        public boolean canDisablePut();
+      boolean canDisableRepair();
 
-        public boolean canDisableRepair();
+      boolean canDisableRuneing();
 
-        public boolean canDisableRuneing();
+      boolean canDisableSpellTarget();
 
-        public boolean canDisableSpellTarget();
+      boolean canDisableTake();
 
-        public boolean canDisableTake();
+      boolean canDisableTurning();
 
-        public boolean canDisableTurning();
+      boolean canHaveCourier();
 
-        public boolean canHaveCourier();
+      boolean canHaveDakrMessenger();
 
-        public boolean canHaveDakrMessenger();
+      String getCreatorName();
 
-        public String getCreatorName();
+      float getDamage();
 
-        public float getDamage();
+      String getName();
 
-        public String getName();
+      float getQualityLevel();
 
-        public float getQualityLevel();
+      boolean hasCourier();
 
-        public boolean hasCourier();
+      boolean hasDarkMessenger();
 
-        public boolean hasDarkMessenger();
+      boolean hasNoDecay();
 
-        public boolean hasNoDecay();
+      boolean isAlwaysLit();
 
-        public boolean isAlwaysLit();
+      boolean isAutoFilled();
 
-        public boolean isAutoFilled();
+      boolean isAutoLit();
 
-        public boolean isAutoLit();
+      boolean isIndestructible();
 
-        public boolean isIndestructible();
+      boolean isNoDrag();
 
-        public boolean isNoDrag();
+      boolean isNoDrop();
 
-        public boolean isNoDrop();
+      boolean isNoEatOrDrink();
 
-        public boolean isNoEatOrDrink();
+      boolean isNoImprove();
 
-        public boolean isNoImprove();
+      boolean isNoMove();
 
-        public boolean isNoMove();
+      boolean isNoPut();
 
-        public boolean isNoPut();
+      boolean isNoRepair();
 
-        public boolean isNoRepair();
+      boolean isNoTake();
 
-        public boolean isNoTake();
+      boolean isNotLockable();
 
-        public boolean isNotLockable();
+      boolean isNotLockpickable();
 
-        public boolean isNotLockpickable();
+      boolean isNotPaintable();
 
-        public boolean isNotPaintable();
+      boolean isNotRuneable();
 
-        public boolean isNotRuneable();
+      boolean isNotSpellTarget();
 
-        public boolean isNotSpellTarget();
+      boolean isNotTurnable();
 
-        public boolean isNotTurnable();
+      boolean isOwnerMoveable();
 
-        public boolean isOwnerMoveable();
+      boolean isOwnerTurnable();
 
-        public boolean isOwnerTurnable();
+      boolean isPlanted();
 
-        public boolean isPlanted();
+      boolean isSealedByPlayer();
 
-        public boolean isSealedByPlayer();
+      void setCreator(String var1);
 
-        public void setCreator(String var1);
+      boolean setDamage(float var1);
 
-        public boolean setDamage(float var1);
+      void setHasCourier(boolean var1);
 
-        public void setHasCourier(boolean var1);
+      void setHasDarkMessenger(boolean var1);
 
-        public void setHasDarkMessenger(boolean var1);
+      void setHasNoDecay(boolean var1);
 
-        public void setHasNoDecay(boolean var1);
+      void setIsAlwaysLit(boolean var1);
 
-        public void setIsAlwaysLit(boolean var1);
+      void setIsAutoFilled(boolean var1);
 
-        public void setIsAutoFilled(boolean var1);
+      void setIsAutoLit(boolean var1);
 
-        public void setIsAutoLit(boolean var1);
+      void setIsIndestructible(boolean var1);
 
-        public void setIsIndestructible(boolean var1);
+      void setIsNoDrag(boolean var1);
 
-        public void setIsNoDrag(boolean var1);
+      void setIsNoDrop(boolean var1);
 
-        public void setIsNoDrop(boolean var1);
+      void setIsNoEatOrDrink(boolean var1);
 
-        public void setIsNoEatOrDrink(boolean var1);
+      void setIsNoImprove(boolean var1);
 
-        public void setIsNoImprove(boolean var1);
+      void setIsNoMove(boolean var1);
 
-        public void setIsNoMove(boolean var1);
+      void setIsNoPut(boolean var1);
 
-        public void setIsNoPut(boolean var1);
+      void setIsNoRepair(boolean var1);
 
-        public void setIsNoRepair(boolean var1);
+      void setIsNoTake(boolean var1);
 
-        public void setIsNoTake(boolean var1);
+      void setIsNotLockable(boolean var1);
 
-        public void setIsNotLockable(boolean var1);
+      void setIsNotLockpickable(boolean var1);
 
-        public void setIsNotLockpickable(boolean var1);
+      void setIsNotPaintable(boolean var1);
 
-        public void setIsNotPaintable(boolean var1);
+      void setIsNotRuneable(boolean var1);
 
-        public void setIsNotRuneable(boolean var1);
+      void setIsNotSpellTarget(boolean var1);
 
-        public void setIsNotSpellTarget(boolean var1);
+      void setIsNotTurnable(boolean var1);
 
-        public void setIsNotTurnable(boolean var1);
+      void setIsOwnerMoveable(boolean var1);
 
-        public void setIsOwnerMoveable(boolean var1);
+      void setIsOwnerTurnable(boolean var1);
 
-        public void setIsOwnerTurnable(boolean var1);
+      void setIsPlanted(boolean var1);
 
-        public void setIsPlanted(boolean var1);
+      void setIsSealedByPlayer(boolean var1);
 
-        public void setIsSealedByPlayer(boolean var1);
+      boolean setQualityLevel(float var1);
 
-        public boolean setQualityLevel(float var1);
+      void setOriginalQualityLevel(float var1);
 
-        public void setOriginalQualityLevel(float var1);
+      void savePermissions();
+   }
 
-        public void savePermissions();
-    }
+   public interface IPermission {
+      byte getBit();
 
-    public static interface IPermission {
-        public byte getBit();
+      int getValue();
 
-        public int getValue();
+      String getDescription();
 
-        public String getDescription();
+      String getHeader1();
 
-        public String getHeader1();
+      String getHeader2();
 
-        public String getHeader2();
-
-        public String getHover();
-    }
+      String getHover();
+   }
 }
-

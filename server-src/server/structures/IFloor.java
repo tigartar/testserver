@@ -1,63 +1,57 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.server.structures;
 
 import com.wurmonline.server.items.Item;
-import com.wurmonline.server.structures.StructureSupport;
 import com.wurmonline.server.zones.VolaTile;
 
-public interface IFloor
-extends StructureSupport {
-    public float getDamageModifierForItem(Item var1);
+public interface IFloor extends StructureSupport {
+   float getDamageModifierForItem(Item var1);
 
-    public long getStructureId();
+   long getStructureId();
 
-    public VolaTile getTile();
+   VolaTile getTile();
 
-    public boolean isOnPvPServer();
+   boolean isOnPvPServer();
 
-    public int getTileX();
+   int getTileX();
 
-    public int getTileY();
+   int getTileY();
 
-    public float getCurrentQualityLevel();
+   float getCurrentQualityLevel();
 
-    public float getDamage();
+   float getDamage();
 
-    public boolean setDamage(float var1);
+   boolean setDamage(float var1);
 
-    public float getQualityLevel();
+   float getQualityLevel();
 
-    public void destroyOrRevertToPlan();
+   void destroyOrRevertToPlan();
 
-    public boolean isAPlan();
+   boolean isAPlan();
 
-    public boolean isThatch();
+   boolean isThatch();
 
-    public boolean isStone();
+   boolean isStone();
 
-    public boolean isSandstone();
+   boolean isSandstone();
 
-    public boolean isSlate();
+   boolean isSlate();
 
-    public boolean isMarble();
+   boolean isMarble();
 
-    public boolean isMetal();
+   boolean isMetal();
 
-    public boolean isWood();
+   boolean isWood();
 
-    public boolean isFinished();
+   boolean isFinished();
 
-    public int getRepairItemTemplate();
+   int getRepairItemTemplate();
 
-    public boolean setQualityLevel(float var1);
+   boolean setQualityLevel(float var1);
 
-    public void setLastUsed(long var1);
+   void setLastUsed(long var1);
 
-    public boolean isOnSurface();
+   boolean isOnSurface();
 
-    @Override
-    public boolean equals(StructureSupport var1);
+   @Override
+   boolean equals(StructureSupport var1);
 }
-

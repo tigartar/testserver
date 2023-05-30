@@ -1,47 +1,38 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.server.players;
 
-import com.wurmonline.server.players.IPBan;
-import com.wurmonline.server.players.SteamIdBan;
 import com.wurmonline.server.steam.SteamId;
 
 public interface Ban {
-    public boolean isExpired();
+   boolean isExpired();
 
-    public String getIdentifier();
+   String getIdentifier();
 
-    public String getReason();
+   String getReason();
 
-    public void setReason(String var1);
+   void setReason(String var1);
 
-    public long getExpiry();
+   long getExpiry();
 
-    public void setExpiry(long var1);
+   void setExpiry(long var1);
 
-    default public String getUpdateSql() {
-        return "";
-    }
+   default String getUpdateSql() {
+      return "";
+   }
 
-    default public String getInsertSql() {
-        return "";
-    }
+   default String getInsertSql() {
+      return "";
+   }
 
-    default public String getDeleteSql() {
-        return "";
-    }
+   default String getDeleteSql() {
+      return "";
+   }
 
-    public static Ban fromString(String identifier) {
-        return Ban.fromString(identifier, "", 0L);
-    }
+   static Ban fromString(String identifier) {
+      return fromString(identifier, "", 0L);
+   }
 
-    public static Ban fromString(String identifier, String reason, long expiry) {
-        SteamId id = SteamId.fromAnyString(identifier);
-        if (id != null) {
-            return new SteamIdBan(id, reason, expiry);
-        }
-        return new IPBan(identifier, reason, expiry);
-    }
+   static Ban fromString(String identifier, String reason, long expiry) {
+      SteamId id = SteamId.fromAnyString(identifier);
+      return (Ban)(id != null ? new SteamIdBan(id, reason, expiry) : new IPBan(identifier, reason, expiry));
+   }
 }
-

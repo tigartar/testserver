@@ -1,88 +1,81 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.server.gui.folders;
 
 import java.io.IOException;
-import java.nio.file.CopyOption;
 import java.nio.file.DirectoryStream;
-import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.attribute.FileAttribute;
 import java.util.Comparator;
 import java.util.logging.Logger;
 
 public class Folder {
-    private static final Logger logger = Logger.getLogger(Folder.class.getName());
-    Path path;
-    String name;
+   private static final Logger logger = Logger.getLogger(Folder.class.getName());
+   Path path;
+   String name;
 
-    public Folder(Path path) {
-        this.path = path;
-        this.name = this.path.getName(path.getNameCount() - 1).toString();
-    }
+   public Folder(Path path) {
+      this.path = path;
+      this.name = this.path.getName(path.getNameCount() - 1).toString();
+   }
 
-    public final Path getPath() {
-        return this.path;
-    }
+   public final Path getPath() {
+      return this.path;
+   }
 
-    public final String getName() {
-        return this.name;
-    }
+   public final String getName() {
+      return this.name;
+   }
 
-    public boolean isEmpty() throws IOException {
-        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(this.path);){
-            boolean bl = !dirStream.iterator().hasNext();
-            return bl;
-        }
-    }
+   public boolean isEmpty() throws IOException {
+      boolean var3;
+      try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(this.path)) {
+         var3 = !dirStream.iterator().hasNext();
+      }
 
-    public boolean create() {
-        if (this.exists()) {
+      return var3;
+   }
+
+   public boolean create() {
+      if (this.exists()) {
+         return true;
+      } else {
+         try {
+            Files.createDirectory(this.path);
             return true;
-        }
-        try {
-            Files.createDirectory(this.path, new FileAttribute[0]);
-        }
-        catch (IOException ex) {
+         } catch (IOException var2) {
             logger.warning("Exception creating " + this.path.toString());
-            ex.printStackTrace();
+            var2.printStackTrace();
             return false;
-        }
-        return true;
-    }
+         }
+      }
+   }
 
-    public boolean exists() {
-        return Files.exists(this.path, new LinkOption[0]);
-    }
+   public boolean exists() {
+      return Files.exists(this.path);
+   }
 
-    public boolean delete() {
-        if (!this.exists()) {
-            return true;
-        }
-        try {
-            Files.walk(this.path, new FileVisitOption[0]).sorted(Comparator.reverseOrder()).forEach(path -> {
-                try {
-                    Files.delete(path);
-                }
-                catch (IOException ex) {
-                    logger.warning("Exception deleting " + this.path.toString());
-                    ex.printStackTrace();
-                }
+   public boolean delete() {
+      if (!this.exists()) {
+         return true;
+      } else {
+         try {
+            Files.walk(this.path).sorted(Comparator.reverseOrder()).forEach(path -> {
+               try {
+                  Files.delete(path);
+               } catch (IOException var3) {
+                  logger.warning("Exception deleting " + this.path.toString());
+                  var3.printStackTrace();
+               }
             });
-        }
-        catch (IOException ex) {
+            return true;
+         } catch (IOException var2) {
             logger.warning("Exception deleting " + this.path.toString());
-            ex.printStackTrace();
+            var2.printStackTrace();
             return false;
-        }
-        return true;
-    }
+         }
+      }
+   }
 
-    public void move(Path path) throws IOException {
-        Files.move(this.path, path, new CopyOption[0]);
-    }
+   public void move(Path path) throws IOException {
+      Files.move(this.path, path);
+   }
 }
-

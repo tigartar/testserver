@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.server.database.migrations;
 
 import javax.annotation.Nonnull;
@@ -11,92 +8,89 @@ import org.flywaydb.core.api.MigrationVersion;
 @ParametersAreNonnullByDefault
 @Immutable
 public abstract class MigrationResult {
-    private MigrationResult() {
-    }
+   private MigrationResult() {
+   }
 
-    public abstract boolean isSuccess();
+   public abstract boolean isSuccess();
 
-    public boolean isError() {
-        return !this.isSuccess();
-    }
+   public boolean isError() {
+      return !this.isSuccess();
+   }
 
-    public MigrationError asError() {
-        throw new IllegalArgumentException("This migration is not in error");
-    }
+   public MigrationResult.MigrationError asError() {
+      throw new IllegalArgumentException("This migration is not in error");
+   }
 
-    public MigrationSuccess asSuccess() {
-        throw new IllegalArgumentException("This migration is not a success");
-    }
+   public MigrationResult.MigrationSuccess asSuccess() {
+      throw new IllegalArgumentException("This migration is not a success");
+   }
 
-    static MigrationError newError(String message) {
-        return new MigrationError(message);
-    }
+   static MigrationResult.MigrationError newError(String message) {
+      return new MigrationResult.MigrationError(message);
+   }
 
-    static MigrationSuccess newSuccess(MigrationVersion versionBeforeMigration, MigrationVersion versionAfterMigration, int numMigrations) {
-        return new MigrationSuccess(versionBeforeMigration, versionAfterMigration, numMigrations);
-    }
+   static MigrationResult.MigrationSuccess newSuccess(MigrationVersion versionBeforeMigration, MigrationVersion versionAfterMigration, int numMigrations) {
+      return new MigrationResult.MigrationSuccess(versionBeforeMigration, versionAfterMigration, numMigrations);
+   }
 
-    @ParametersAreNonnullByDefault
-    @Immutable
-    public static final class MigrationSuccess
-    extends MigrationResult {
-        private final MigrationVersion versionBeforeMigration;
-        private final MigrationVersion versionAfterMigration;
-        private final int numMigrations;
+   @ParametersAreNonnullByDefault
+   @Immutable
+   public static final class MigrationError extends MigrationResult {
+      private final String message;
 
-        private MigrationSuccess(MigrationVersion versionBeforeMigration, MigrationVersion versionAfterMigration, int numMigrations) {
-            this.versionBeforeMigration = versionBeforeMigration;
-            this.versionAfterMigration = versionAfterMigration;
-            this.numMigrations = numMigrations;
-        }
+      private MigrationError(String message) {
+         this.message = message;
+      }
 
-        @Override
-        public boolean isSuccess() {
-            return true;
-        }
+      @Override
+      public boolean isSuccess() {
+         return false;
+      }
 
-        public MigrationVersion getVersionBefore() {
-            return this.versionBeforeMigration;
-        }
+      @Nonnull
+      public final String getMessage() {
+         return this.message;
+      }
 
-        public MigrationVersion getVersionAfter() {
-            return this.versionAfterMigration;
-        }
+      @Override
+      public MigrationResult.MigrationError asError() {
+         return this;
+      }
+   }
 
-        public int getNumMigrations() {
-            return this.numMigrations;
-        }
+   @ParametersAreNonnullByDefault
+   @Immutable
+   public static final class MigrationSuccess extends MigrationResult {
+      private final MigrationVersion versionBeforeMigration;
+      private final MigrationVersion versionAfterMigration;
+      private final int numMigrations;
 
-        @Override
-        public MigrationSuccess asSuccess() {
-            return this;
-        }
-    }
+      private MigrationSuccess(MigrationVersion versionBeforeMigration, MigrationVersion versionAfterMigration, int numMigrations) {
+         this.versionBeforeMigration = versionBeforeMigration;
+         this.versionAfterMigration = versionAfterMigration;
+         this.numMigrations = numMigrations;
+      }
 
-    @ParametersAreNonnullByDefault
-    @Immutable
-    public static final class MigrationError
-    extends MigrationResult {
-        private final String message;
+      @Override
+      public boolean isSuccess() {
+         return true;
+      }
 
-        private MigrationError(String message) {
-            this.message = message;
-        }
+      public MigrationVersion getVersionBefore() {
+         return this.versionBeforeMigration;
+      }
 
-        @Override
-        public boolean isSuccess() {
-            return false;
-        }
+      public MigrationVersion getVersionAfter() {
+         return this.versionAfterMigration;
+      }
 
-        @Nonnull
-        public final String getMessage() {
-            return this.message;
-        }
+      public int getNumMigrations() {
+         return this.numMigrations;
+      }
 
-        @Override
-        public MigrationError asError() {
-            return this;
-        }
-    }
+      @Override
+      public MigrationResult.MigrationSuccess asSuccess() {
+         return this;
+      }
+   }
 }
-

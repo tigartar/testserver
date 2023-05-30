@@ -1,62 +1,60 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.server.behaviours;
 
-import com.wurmonline.server.behaviours.Action;
-import com.wurmonline.server.behaviours.ActionEntry;
-import com.wurmonline.server.behaviours.Actions;
-import com.wurmonline.server.behaviours.ItemBehaviour;
-import com.wurmonline.server.behaviours.MethodsItems;
 import com.wurmonline.server.creatures.Creature;
 import com.wurmonline.server.items.Item;
 import java.util.LinkedList;
 import java.util.List;
 
-final class ToyBehaviour
-extends ItemBehaviour {
-    ToyBehaviour() {
-        super((short)26);
-    }
+final class ToyBehaviour extends ItemBehaviour {
+   ToyBehaviour() {
+      super((short)26);
+   }
 
-    @Override
-    public List<ActionEntry> getBehavioursFor(Creature performer, Item object) {
-        LinkedList<ActionEntry> toReturn = new LinkedList<ActionEntry>();
-        if (object.getTemplateId() == 271) {
-            toReturn.add(Actions.actionEntrys[190]);
-        }
-        toReturn.addAll(super.getBehavioursFor(performer, object));
-        return toReturn;
-    }
+   @Override
+   public List<ActionEntry> getBehavioursFor(Creature performer, Item object) {
+      List<ActionEntry> toReturn = new LinkedList<>();
+      if (object.getTemplateId() == 271) {
+         toReturn.add(Actions.actionEntrys[190]);
+      }
 
-    @Override
-    public List<ActionEntry> getBehavioursFor(Creature performer, Item source, Item object) {
-        LinkedList<ActionEntry> toReturn = new LinkedList<ActionEntry>();
-        if (object.getTemplateId() == 271) {
-            toReturn.add(Actions.actionEntrys[190]);
-        }
-        toReturn.addAll(super.getBehavioursFor(performer, source, object));
-        return toReturn;
-    }
+      toReturn.addAll(super.getBehavioursFor(performer, object));
+      return toReturn;
+   }
 
-    @Override
-    public boolean action(Action act, Creature performer, Item target, short action, float counter) {
-        boolean toReturn = true;
-        if (action == 190) {
-            if (target.getTemplateId() == 271) {
-                toReturn = MethodsItems.yoyo(performer, target, counter, act);
-            }
-        } else {
-            toReturn = super.action(act, performer, target, action, counter);
-        }
-        return toReturn;
-    }
+   @Override
+   public List<ActionEntry> getBehavioursFor(Creature performer, Item source, Item object) {
+      List<ActionEntry> toReturn = new LinkedList<>();
+      if (object.getTemplateId() == 271) {
+         toReturn.add(Actions.actionEntrys[190]);
+      }
 
-    @Override
-    public boolean action(Action act, Creature performer, Item source, Item target, short action, float counter) {
-        boolean toReturn = false;
-        toReturn = target.getTemplateId() == 271 && action == 190 ? this.action(act, performer, target, action, counter) : super.action(act, performer, source, target, action, counter);
-        return toReturn;
-    }
+      toReturn.addAll(super.getBehavioursFor(performer, source, object));
+      return toReturn;
+   }
+
+   @Override
+   public boolean action(Action act, Creature performer, Item target, short action, float counter) {
+      boolean toReturn = true;
+      if (action == 190) {
+         if (target.getTemplateId() == 271) {
+            toReturn = MethodsItems.yoyo(performer, target, counter, act);
+         }
+      } else {
+         toReturn = super.action(act, performer, target, action, counter);
+      }
+
+      return toReturn;
+   }
+
+   @Override
+   public boolean action(Action act, Creature performer, Item source, Item target, short action, float counter) {
+      boolean toReturn = false;
+      if (target.getTemplateId() == 271 && action == 190) {
+         toReturn = this.action(act, performer, target, action, counter);
+      } else {
+         toReturn = super.action(act, performer, source, target, action, counter);
+      }
+
+      return toReturn;
+   }
 }
-

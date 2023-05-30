@@ -1,13 +1,7 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.communication;
 
-import com.wurmonline.communication.SocketConnection;
-
 public interface ServerListener {
-    public void clientConnected(SocketConnection var1);
+   void clientConnected(SocketConnection var1);
 
-    public void clientException(SocketConnection var1, Exception var2);
+   void clientException(SocketConnection var1, Exception var2);
 }
-

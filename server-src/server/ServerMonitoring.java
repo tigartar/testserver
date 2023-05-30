@@ -1,15 +1,11 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.server;
 
 public interface ServerMonitoring {
-    public boolean isLagging();
+   boolean isLagging();
 
-    public byte[] getExternalIp();
+   byte[] getExternalIp();
 
-    public byte[] getInternalIp();
+   byte[] getInternalIp();
 
-    public int getIntraServerPort();
+   int getIntraServerPort();
 }
-

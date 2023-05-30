@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.server.intra;
 
 import com.wurmonline.server.MiscConstants;
@@ -9,88 +6,91 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class MountTransfer
-implements MiscConstants,
-TimeConstants {
-    private static final Map<Long, MountTransfer> transfers = new HashMap<Long, MountTransfer>();
-    private static final Map<Long, MountTransfer> transfersPerCreature = new HashMap<Long, MountTransfer>();
-    private final Map<Long, Integer> seats = new HashMap<Long, Integer>();
-    private static final Logger logger = Logger.getLogger(MountTransfer.class.getName());
-    private final long vehicleid;
-    private final long pilotid;
-    private final long creationTime;
+public final class MountTransfer implements MiscConstants, TimeConstants {
+   private static final Map<Long, MountTransfer> transfers = new HashMap<>();
+   private static final Map<Long, MountTransfer> transfersPerCreature = new HashMap<>();
+   private final Map<Long, Integer> seats = new HashMap<>();
+   private static final Logger logger = Logger.getLogger(MountTransfer.class.getName());
+   private final long vehicleid;
+   private final long pilotid;
+   private final long creationTime;
 
-    public MountTransfer(long vehicleId, long pilotId) {
-        this.vehicleid = vehicleId;
-        this.pilotid = pilotId;
-        this.creationTime = System.currentTimeMillis();
-        transfers.put(vehicleId, this);
-    }
+   public MountTransfer(long vehicleId, long pilotId) {
+      this.vehicleid = vehicleId;
+      this.pilotid = pilotId;
+      this.creationTime = System.currentTimeMillis();
+      transfers.put(vehicleId, this);
+   }
 
-    public void addToSeat(long wid, int seatid) {
-        if (logger.isLoggable(Level.FINER)) {
-            logger.finer("Adding " + wid + ", seat=" + seatid);
-        }
-        this.seats.put(wid, seatid);
-        transfersPerCreature.put(wid, this);
-    }
+   public void addToSeat(long wid, int seatid) {
+      if (logger.isLoggable(Level.FINER)) {
+         logger.finer("Adding " + wid + ", seat=" + seatid);
+      }
 
-    public int getSeatFor(long wurmid) {
-        if (this.seats.keySet().contains(wurmid)) {
-            return this.seats.get(wurmid);
-        }
-        return -1;
-    }
+      this.seats.put(wid, seatid);
+      transfersPerCreature.put(wid, this);
+   }
 
-    public void remove(long wurmid) {
-        if (logger.isLoggable(Level.FINER)) {
-            logger.finer("Removing " + wurmid);
-        }
-        this.seats.remove(wurmid);
-        transfersPerCreature.remove(wurmid);
-        if (this.seats.isEmpty()) {
-            this.clearAndRemove();
-        }
-    }
+   public int getSeatFor(long wurmid) {
+      return this.seats.keySet().contains(wurmid) ? this.seats.get(wurmid) : -1;
+   }
 
-    long getCreationTime() {
-        return this.creationTime;
-    }
+   public void remove(long wurmid) {
+      if (logger.isLoggable(Level.FINER)) {
+         logger.finer("Removing " + wurmid);
+      }
 
-    private void clearAndRemove() {
-        Iterator<Long> seatIt = this.seats.keySet().iterator();
-        while (seatIt.hasNext()) {
-            transfersPerCreature.remove(seatIt.next());
-        }
-        transfers.remove(this.vehicleid);
-        this.seats.clear();
-    }
+      this.seats.remove(wurmid);
+      transfersPerCreature.remove(wurmid);
+      if (this.seats.isEmpty()) {
+         this.clearAndRemove();
+      }
+   }
 
-    public long getVehicleId() {
-        return this.vehicleid;
-    }
+   long getCreationTime() {
+      return this.creationTime;
+   }
 
-    public long getPilotId() {
-        return this.pilotid;
-    }
+   private void clearAndRemove() {
+      Iterator<Long> seatIt = this.seats.keySet().iterator();
 
-    public static final MountTransfer getTransferFor(long wurmid) {
-        return transfersPerCreature.get(wurmid);
-    }
+      while(seatIt.hasNext()) {
+         transfersPerCreature.remove(seatIt.next());
+      }
 
-    public static final void pruneTransfers() {
-        HashSet<MountTransfer> toRemove = new HashSet<MountTransfer>();
-        for (MountTransfer mt : transfers.values()) {
-            if (System.currentTimeMillis() - mt.getCreationTime() <= 1800000L) continue;
+      transfers.remove(this.vehicleid);
+      this.seats.clear();
+   }
+
+   public long getVehicleId() {
+      return this.vehicleid;
+   }
+
+   public long getPilotId() {
+      return this.pilotid;
+   }
+
+   public static final MountTransfer getTransferFor(long wurmid) {
+      return transfersPerCreature.get(wurmid);
+   }
+
+   public static final void pruneTransfers() {
+      Set<MountTransfer> toRemove = new HashSet<>();
+
+      for(MountTransfer mt : transfers.values()) {
+         if (System.currentTimeMillis() - mt.getCreationTime() > 1800000L) {
             toRemove.add(mt);
-        }
-        Iterator it2 = toRemove.iterator();
-        while (it2.hasNext()) {
-            ((MountTransfer)it2.next()).clearAndRemove();
-        }
-    }
-}
+         }
+      }
 
+      Iterator<MountTransfer> it2 = toRemove.iterator();
+
+      while(it2.hasNext()) {
+         it2.next().clearAndRemove();
+      }
+   }
+}

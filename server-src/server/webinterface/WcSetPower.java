@@ -1,191 +1,171 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.server.webinterface;
 
+import com.wurmonline.server.NoSuchPlayerException;
+import com.wurmonline.server.Players;
 import com.wurmonline.server.WurmId;
-import com.wurmonline.server.webinterface.WebCommand;
+import com.wurmonline.server.players.Player;
+import com.wurmonline.server.players.PlayerInfo;
+import com.wurmonline.server.players.PlayerInfoFactory;
 import com.wurmonline.shared.util.StreamUtilities;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class WcSetPower
-extends WebCommand {
-    private static final Logger logger = Logger.getLogger(WcSetPower.class.getName());
-    private String playerName;
-    private int newPower;
-    private String senderName;
-    private int senderPower;
-    private String response;
+public class WcSetPower extends WebCommand {
+   private static final Logger logger = Logger.getLogger(WcSetPower.class.getName());
+   private String playerName;
+   private int newPower;
+   private String senderName;
+   private int senderPower;
+   private String response;
 
-    public WcSetPower(String playerName, int newPower, String senderName, int senderPower, String response) {
-        this();
-        this.playerName = playerName;
-        this.newPower = newPower;
-        this.senderName = senderName;
-        this.senderPower = senderPower;
-        this.response = response;
-    }
+   public WcSetPower(String playerName, int newPower, String senderName, int senderPower, String response) {
+      this();
+      this.playerName = playerName;
+      this.newPower = newPower;
+      this.senderName = senderName;
+      this.senderPower = senderPower;
+      this.response = response;
+   }
 
-    WcSetPower(WcSetPower copy) {
-        this();
-        this.playerName = copy.playerName;
-        this.newPower = copy.newPower;
-        this.senderName = copy.senderName;
-        this.senderPower = copy.senderPower;
-        this.response = copy.response;
-    }
+   WcSetPower(WcSetPower copy) {
+      this();
+      this.playerName = copy.playerName;
+      this.newPower = copy.newPower;
+      this.senderName = copy.senderName;
+      this.senderPower = copy.senderPower;
+      this.response = copy.response;
+   }
 
-    WcSetPower() {
-        super(WurmId.getNextWCCommandId(), (short)33);
-    }
+   WcSetPower() {
+      super(WurmId.getNextWCCommandId(), (short)33);
+   }
 
-    public WcSetPower(long aId, byte[] _data) {
-        super(aId, (short)33, _data);
-    }
+   public WcSetPower(long aId, byte[] _data) {
+      super(aId, (short)33, _data);
+   }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
-    @Override
-    byte[] encode() {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        DataOutputStream dos = null;
-        byte[] byteArr = null;
-        try {
-            dos = new DataOutputStream(bos);
-            dos.writeUTF(this.playerName);
-            dos.writeInt(this.newPower);
-            dos.writeUTF(this.senderName);
-            dos.writeInt(this.senderPower);
-            dos.writeUTF(this.response);
-            dos.flush();
-            dos.close();
-        }
-        catch (Exception ex) {
+   @Override
+   byte[] encode() {
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      DataOutputStream dos = null;
+      byte[] byteArr = null;
+
+      try {
+         dos = new DataOutputStream(bos);
+         dos.writeUTF(this.playerName);
+         dos.writeInt(this.newPower);
+         dos.writeUTF(this.senderName);
+         dos.writeInt(this.senderPower);
+         dos.writeUTF(this.response);
+         dos.flush();
+         dos.close();
+      } catch (Exception var8) {
+         logger.log(Level.WARNING, var8.getMessage(), (Throwable)var8);
+      } finally {
+         StreamUtilities.closeOutputStreamIgnoreExceptions(dos);
+         byteArr = bos.toByteArray();
+         StreamUtilities.closeOutputStreamIgnoreExceptions(bos);
+         this.setData(byteArr);
+      }
+
+      return byteArr;
+   }
+
+   @Override
+   public boolean autoForward() {
+      return false;
+   }
+
+   @Override
+   public void execute() {
+      (new Thread() {
+         @Override
+         public void run() {
+            DataInputStream dis = null;
+
             try {
-                logger.log(Level.WARNING, ex.getMessage(), ex);
-            }
-            catch (Throwable throwable) {
-                StreamUtilities.closeOutputStreamIgnoreExceptions(dos);
-                byteArr = bos.toByteArray();
-                StreamUtilities.closeOutputStreamIgnoreExceptions(bos);
-                this.setData(byteArr);
-                throw throwable;
-            }
-            StreamUtilities.closeOutputStreamIgnoreExceptions(dos);
-            byteArr = bos.toByteArray();
-            StreamUtilities.closeOutputStreamIgnoreExceptions(bos);
-            this.setData(byteArr);
-        }
-        StreamUtilities.closeOutputStreamIgnoreExceptions(dos);
-        byteArr = bos.toByteArray();
-        StreamUtilities.closeOutputStreamIgnoreExceptions(bos);
-        this.setData(byteArr);
-        return byteArr;
-    }
+               dis = new DataInputStream(new ByteArrayInputStream(WcSetPower.this.getData()));
+               WcSetPower.this.playerName = dis.readUTF();
+               WcSetPower.this.newPower = dis.readInt();
+               WcSetPower.this.senderName = dis.readUTF();
+               WcSetPower.this.senderPower = dis.readInt();
+               WcSetPower.this.response = dis.readUTF();
+               if (!WcSetPower.this.response.equals("")) {
+                  try {
+                     Player sender = Players.getInstance().getPlayer(WcSetPower.this.senderName);
+                     sender.getCommunicator().sendSafeServerMessage(WcSetPower.this.response);
+                     return;
+                  } catch (Exception var17) {
+                  }
+               } else {
+                  try {
+                     Player p = Players.getInstance().getPlayer(WcSetPower.this.playerName);
+                     if (p.getPower() > WcSetPower.this.senderPower) {
+                        WcSetPower.this.response = "They are more powerful than you. You cannot set their power.";
+                     } else {
+                        p.setPower((byte)WcSetPower.this.newPower);
+                        String powerName = this.getPowerName(WcSetPower.this.newPower);
+                        p.getCommunicator().sendSafeServerMessage("Your status has been set by " + WcSetPower.this.senderName + " to " + powerName + "!");
+                        WcSetPower.this.response = "You set the power of " + WcSetPower.this.playerName + " to the status of " + powerName;
+                     }
+                  } catch (NoSuchPlayerException var15) {
+                     PlayerInfo pinf = PlayerInfoFactory.createPlayerInfo(WcSetPower.this.playerName);
 
-    @Override
-    public boolean autoForward() {
-        return false;
-    }
-
-    @Override
-    public void execute() {
-        new Thread(){
-
-            /*
-             * Exception decompiling
-             */
-            @Override
-            public void run() {
-                /*
-                 * This method has failed to decompile.  When submitting a bug report, please provide this stack trace, and (if you hold appropriate legal rights) the relevant class file.
-                 * 
-                 * org.benf.cfr.reader.util.ConfusedCFRException: Tried to end blocks [0[TRYBLOCK], 7[CATCHBLOCK]], but top level block is 2[TRYBLOCK]
-                 *     at org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement.processEndingBlocks(Op04StructuredStatement.java:435)
-                 *     at org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement.buildNestedBlocks(Op04StructuredStatement.java:484)
-                 *     at org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement.createInitialStructuredBlock(Op03SimpleStatement.java:736)
-                 *     at org.benf.cfr.reader.bytecode.CodeAnalyser.getAnalysisInner(CodeAnalyser.java:850)
-                 *     at org.benf.cfr.reader.bytecode.CodeAnalyser.getAnalysisOrWrapFail(CodeAnalyser.java:278)
-                 *     at org.benf.cfr.reader.bytecode.CodeAnalyser.getAnalysis(CodeAnalyser.java:201)
-                 *     at org.benf.cfr.reader.entities.attributes.AttributeCode.analyse(AttributeCode.java:94)
-                 *     at org.benf.cfr.reader.entities.Method.analyse(Method.java:531)
-                 *     at org.benf.cfr.reader.entities.ClassFile.analyseMid(ClassFile.java:1055)
-                 *     at org.benf.cfr.reader.entities.ClassFile.analyseInnerClassesPass1(ClassFile.java:923)
-                 *     at org.benf.cfr.reader.entities.ClassFile.analyseMid(ClassFile.java:1035)
-                 *     at org.benf.cfr.reader.entities.ClassFile.analyseTop(ClassFile.java:942)
-                 *     at org.benf.cfr.reader.Driver.doJarVersionTypes(Driver.java:257)
-                 *     at org.benf.cfr.reader.Driver.doJar(Driver.java:139)
-                 *     at org.benf.cfr.reader.CfrDriverImpl.analyse(CfrDriverImpl.java:76)
-                 *     at org.benf.cfr.reader.Main.main(Main.java:54)
-                 */
-                throw new IllegalStateException("Decompilation failed");
+                     try {
+                        pinf.load();
+                        if (pinf.getPower() > WcSetPower.this.senderPower) {
+                           WcSetPower.this.response = "They are more powerful than you. You cannot set their power.";
+                        } else {
+                           pinf.setPower((byte)WcSetPower.this.newPower);
+                           pinf.save();
+                           String powerName = this.getPowerName(WcSetPower.this.newPower);
+                           WcSetPower.this.response = "You set the power of " + WcSetPower.this.playerName + " to the power of " + powerName;
+                        }
+                     } catch (IOException var14) {
+                        WcSetPower.this.response = "Error trying load or save player information who is currently offline.";
+                     }
+                  } catch (IOException var16) {
+                     WcSetPower.this.response = "Error trying to set the power on the player who is currently online.";
+                  }
+               }
+            } catch (IOException var18) {
+               WcSetPower.logger.log(Level.WARNING, "Unpack exception " + var18.getMessage(), (Throwable)var18);
+               WcSetPower.this.response = "Something went terribly wrong trying to set the power.";
+            } finally {
+               StreamUtilities.closeInputStreamIgnoreExceptions(dis);
             }
 
-            private String getPowerName(int power) {
-                String powString = "normal adventurer";
-                if (WcSetPower.this.newPower == 1) {
-                    powString = "hero";
-                } else if (WcSetPower.this.newPower == 2) {
-                    powString = "demigod";
-                } else if (WcSetPower.this.newPower == 3) {
-                    powString = "high god";
-                } else if (WcSetPower.this.newPower == 4) {
-                    powString = "arch angel";
-                } else if (WcSetPower.this.newPower == 5) {
-                    powString = "implementor";
-                }
-                return powString;
+            if (!WcSetPower.this.response.equals("")) {
+               try {
+                  WcSetPower wsp = new WcSetPower(WcSetPower.this);
+                  wsp.sendToServer(WurmId.getOrigin(WcSetPower.this.getWurmId()));
+               } catch (Exception var13) {
+                  WcSetPower.logger.log(Level.WARNING, "Could not send response back after setting power", (Throwable)var13);
+               }
             }
-        }.start();
-    }
+         }
 
-    static /* synthetic */ String access$002(WcSetPower x0, String x1) {
-        x0.playerName = x1;
-        return x0.playerName;
-    }
+         private String getPowerName(int power) {
+            String powString = "normal adventurer";
+            if (WcSetPower.this.newPower == 1) {
+               powString = "hero";
+            } else if (WcSetPower.this.newPower == 2) {
+               powString = "demigod";
+            } else if (WcSetPower.this.newPower == 3) {
+               powString = "high god";
+            } else if (WcSetPower.this.newPower == 4) {
+               powString = "arch angel";
+            } else if (WcSetPower.this.newPower == 5) {
+               powString = "implementor";
+            }
 
-    static /* synthetic */ int access$102(WcSetPower x0, int x1) {
-        x0.newPower = x1;
-        return x0.newPower;
-    }
-
-    static /* synthetic */ String access$202(WcSetPower x0, String x1) {
-        x0.senderName = x1;
-        return x0.senderName;
-    }
-
-    static /* synthetic */ int access$302(WcSetPower x0, int x1) {
-        x0.senderPower = x1;
-        return x0.senderPower;
-    }
-
-    static /* synthetic */ String access$402(WcSetPower x0, String x1) {
-        x0.response = x1;
-        return x0.response;
-    }
-
-    static /* synthetic */ String access$400(WcSetPower x0) {
-        return x0.response;
-    }
-
-    static /* synthetic */ String access$200(WcSetPower x0) {
-        return x0.senderName;
-    }
-
-    static /* synthetic */ String access$000(WcSetPower x0) {
-        return x0.playerName;
-    }
-
-    static /* synthetic */ int access$300(WcSetPower x0) {
-        return x0.senderPower;
-    }
-
-    static /* synthetic */ Logger access$500() {
-        return logger;
-    }
+            return powString;
+         }
+      }).start();
+   }
 }
-

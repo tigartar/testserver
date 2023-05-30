@@ -1,24 +1,19 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.server.structures;
 
 import com.wurmonline.shared.exceptions.WurmServerException;
 
-public final class NoSuchLockException
-extends WurmServerException {
-    private static final long serialVersionUID = 2894616265258932169L;
+public final class NoSuchLockException extends WurmServerException {
+   private static final long serialVersionUID = 2894616265258932169L;
 
-    NoSuchLockException(String message) {
-        super(message);
-    }
+   NoSuchLockException(String message) {
+      super(message);
+   }
 
-    NoSuchLockException(Throwable cause) {
-        super(cause);
-    }
+   NoSuchLockException(Throwable cause) {
+      super(cause);
+   }
 
-    NoSuchLockException(String message, Throwable cause) {
-        super(message, cause);
-    }
+   NoSuchLockException(String message, Throwable cause) {
+      super(message, cause);
+   }
 }
-

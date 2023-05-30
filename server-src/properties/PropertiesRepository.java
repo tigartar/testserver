@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.properties;
 
 import java.io.IOException;
@@ -11,37 +8,33 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 public enum PropertiesRepository {
-    INSTANCE;
+   INSTANCE;
 
-    private static final Logger logger;
-    private static final HashMap<URL, Properties> propertiesHashMap;
+   private static final Logger logger = Logger.getLogger(PropertiesRepository.class.getName());
+   private static final HashMap<URL, Properties> propertiesHashMap = new HashMap<>();
 
-    public static PropertiesRepository getInstance() {
-        return INSTANCE;
-    }
+   public static PropertiesRepository getInstance() {
+      return INSTANCE;
+   }
 
-    Properties getProperties(URL file) {
-        if (propertiesHashMap.containsKey(file)) {
-            return propertiesHashMap.get(file);
-        }
-        Properties properties = new Properties();
-        propertiesHashMap.put(file, properties);
-        try (InputStream is = file.openStream();){
+   Properties getProperties(URL file) {
+      if (propertiesHashMap.containsKey(file)) {
+         return propertiesHashMap.get(file);
+      } else {
+         Properties properties = new Properties();
+         propertiesHashMap.put(file, properties);
+
+         try (InputStream is = file.openStream()) {
             properties.load(is);
-        }
-        catch (IOException e) {
+         } catch (IOException var16) {
             logger.warning("Unable to open properties file " + file.toString());
-        }
-        return properties;
-    }
+         }
 
-    public String getValueFor(URL file, String key) {
-        return this.getProperties(file).getProperty(key);
-    }
+         return properties;
+      }
+   }
 
-    static {
-        logger = Logger.getLogger(PropertiesRepository.class.getName());
-        propertiesHashMap = new HashMap();
-    }
+   public String getValueFor(URL file, String key) {
+      return this.getProperties(file).getProperty(key);
+   }
 }
-

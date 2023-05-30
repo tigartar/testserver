@@ -1,13 +1,6 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.server.items;
 
 import com.wurmonline.server.Items;
-import com.wurmonline.server.items.ItemData;
-import com.wurmonline.server.items.ItemDbStrings;
-import com.wurmonline.server.items.NoSuchTemplateException;
-import com.wurmonline.server.items.Recipe;
 import com.wurmonline.server.utils.DbUtilities;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -23,117 +16,116 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 public final class InscriptionData {
-    private String inscription;
-    private final long wurmid;
-    private String inscriber;
-    private int penColour;
-    private static final Logger logger = Logger.getLogger(ItemData.class.getName());
-    private static final String legalInscriptionChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'- 1234567890.,+/!() ;:_#";
+   private String inscription;
+   private final long wurmid;
+   private String inscriber;
+   private int penColour;
+   private static final Logger logger = Logger.getLogger(ItemData.class.getName());
+   private static final String legalInscriptionChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'- 1234567890.,+/!() ;:_#";
 
-    public InscriptionData(long wid, String theData, String theInscriber, int thePenColour) {
-        this.wurmid = wid;
-        this.setInscription(theData);
-        this.setInscriber(theInscriber);
-        this.penColour = thePenColour;
-        Items.addItemInscriptionData(this);
-    }
+   public InscriptionData(long wid, String theData, String theInscriber, int thePenColour) {
+      this.wurmid = wid;
+      this.setInscription(theData);
+      this.setInscriber(theInscriber);
+      this.penColour = thePenColour;
+      Items.addItemInscriptionData(this);
+   }
 
-    public InscriptionData(long wid, Recipe recipe, String theInscriber, int thePenColour) {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(bos);
-        try {
-            recipe.pack(dos);
-            dos.flush();
-            dos.close();
-        }
-        catch (IOException e) {
-            logger.log(Level.WARNING, e.getMessage(), e);
-        }
-        byte[] data = bos.toByteArray();
-        String base64encodedRecipe = Base64.getEncoder().encodeToString(data);
-        this.wurmid = wid;
-        this.setInscription(base64encodedRecipe);
-        this.setInscriber(theInscriber);
-        this.penColour = thePenColour;
-        Items.addItemInscriptionData(this);
-    }
+   public InscriptionData(long wid, Recipe recipe, String theInscriber, int thePenColour) {
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      DataOutputStream dos = new DataOutputStream(bos);
 
-    public String getInscription() {
-        return this.inscription;
-    }
+      try {
+         recipe.pack(dos);
+         dos.flush();
+         dos.close();
+      } catch (IOException var10) {
+         logger.log(Level.WARNING, var10.getMessage(), (Throwable)var10);
+      }
 
-    @Nullable
-    public Recipe getRecipe() {
-        byte[] bytes = Base64.getDecoder().decode(this.inscription);
-        DataInputStream dis = new DataInputStream(new ByteArrayInputStream(bytes));
-        try {
-            return new Recipe(dis);
-        }
-        catch (NoSuchTemplateException e) {
-            logger.log(Level.WARNING, e.getMessage(), e);
-        }
-        catch (IOException e) {
-            logger.log(Level.WARNING, e.getMessage(), e);
-        }
-        return null;
-    }
+      byte[] data = bos.toByteArray();
+      String base64encodedRecipe = Base64.getEncoder().encodeToString(data);
+      this.wurmid = wid;
+      this.setInscription(base64encodedRecipe);
+      this.setInscriber(theInscriber);
+      this.penColour = thePenColour;
+      Items.addItemInscriptionData(this);
+   }
 
-    public void setInscription(String newInscription) {
-        this.inscription = newInscription;
-    }
+   public String getInscription() {
+      return this.inscription;
+   }
 
-    public String getInscriber() {
-        return this.inscriber;
-    }
+   @Nullable
+   public Recipe getRecipe() {
+      byte[] bytes = Base64.getDecoder().decode(this.inscription);
+      DataInputStream dis = new DataInputStream(new ByteArrayInputStream(bytes));
 
-    public void setInscriber(String aInscriber) {
-        this.inscriber = aInscriber;
-    }
+      try {
+         return new Recipe(dis);
+      } catch (NoSuchTemplateException var4) {
+         logger.log(Level.WARNING, var4.getMessage(), (Throwable)var4);
+      } catch (IOException var5) {
+         logger.log(Level.WARNING, var5.getMessage(), (Throwable)var5);
+      }
 
-    public int getPenColour() {
-        return this.penColour;
-    }
+      return null;
+   }
 
-    public void setPenColour(int newColour) {
-        this.penColour = newColour;
-    }
+   public void setInscription(String newInscription) {
+      this.inscription = newInscription;
+   }
 
-    public long getWurmId() {
-        return this.wurmid;
-    }
+   public String getInscriber() {
+      return this.inscriber;
+   }
 
-    public boolean hasBeenInscribed() {
-        return this.getInscription() != null && this.getInscription().length() > 0;
-    }
+   public void setInscriber(String aInscriber) {
+      this.inscriber = aInscriber;
+   }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
-    public void createInscriptionEntry(Connection dbcon) {
-        PreparedStatement ps = null;
-        try {
-            ps = dbcon.prepareStatement(ItemDbStrings.getInstance().createInscription());
-            ps.setLong(1, this.getWurmId());
-            ps.setString(2, this.getInscription());
-            ps.setString(3, this.getInscriber());
-            ps.setInt(4, this.getPenColour());
-            ps.executeUpdate();
-        }
-        catch (SQLException sqx) {
-            logger.log(Level.WARNING, "Failed to save inscription data " + this.getWurmId(), sqx);
-        }
-        finally {
-            DbUtilities.closeDatabaseObjects(ps, null);
-        }
-    }
+   public int getPenColour() {
+      return this.penColour;
+   }
 
-    public static final boolean containsIllegalCharacters(String name) {
-        char[] chars = name.toCharArray();
-        for (int x = 0; x < chars.length; ++x) {
-            if (legalInscriptionChars.indexOf(chars[x]) >= 0) continue;
+   public void setPenColour(int newColour) {
+      this.penColour = newColour;
+   }
+
+   public long getWurmId() {
+      return this.wurmid;
+   }
+
+   public boolean hasBeenInscribed() {
+      return this.getInscription() != null && this.getInscription().length() > 0;
+   }
+
+   public void createInscriptionEntry(Connection dbcon) {
+      PreparedStatement ps = null;
+
+      try {
+         ps = dbcon.prepareStatement(ItemDbStrings.getInstance().createInscription());
+         ps.setLong(1, this.getWurmId());
+         ps.setString(2, this.getInscription());
+         ps.setString(3, this.getInscriber());
+         ps.setInt(4, this.getPenColour());
+         ps.executeUpdate();
+      } catch (SQLException var7) {
+         logger.log(Level.WARNING, "Failed to save inscription data " + this.getWurmId(), (Throwable)var7);
+      } finally {
+         DbUtilities.closeDatabaseObjects(ps, null);
+      }
+   }
+
+   public static final boolean containsIllegalCharacters(String name) {
+      char[] chars = name.toCharArray();
+
+      for(int x = 0; x < chars.length; ++x) {
+         if ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'- 1234567890.,+/!() ;:_#".indexOf(chars[x]) < 0) {
             return true;
-        }
-        return false;
-    }
-}
+         }
+      }
 
+      return false;
+   }
+}

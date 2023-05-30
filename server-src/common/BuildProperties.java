@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.common;
 
 import java.io.IOException;
@@ -8,41 +5,39 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class BuildProperties {
-    private final Properties properties = new Properties();
+   private final Properties properties = new Properties();
 
-    private BuildProperties() {
-    }
+   private BuildProperties() {
+   }
 
-    public static BuildProperties getPropertiesFor(String path) throws IOException {
-        BuildProperties bp = new BuildProperties();
-        try (InputStream inputStream = BuildProperties.class.getResourceAsStream(path);){
-            bp.properties.load(inputStream);
-        }
-        return bp;
-    }
+   public static BuildProperties getPropertiesFor(String path) throws IOException {
+      BuildProperties bp = new BuildProperties();
 
-    public String getGitSha1Short() {
-        String sha = this.getGitSha1();
-        if (sha.length() < 7) {
-            return sha;
-        }
-        return sha.substring(0, 7);
-    }
+      try (InputStream inputStream = BuildProperties.class.getResourceAsStream(path)) {
+         bp.properties.load(inputStream);
+      }
 
-    public String getGitBranch() {
-        return this.properties.getProperty("git-branch");
-    }
+      return bp;
+   }
 
-    public String getGitSha1() {
-        return this.properties.getProperty("git-sha-1");
-    }
+   public String getGitSha1Short() {
+      String sha = this.getGitSha1();
+      return sha.length() < 7 ? sha : sha.substring(0, 7);
+   }
 
-    public String getVersion() {
-        return this.properties.getProperty("version");
-    }
+   public String getGitBranch() {
+      return this.properties.getProperty("git-branch");
+   }
 
-    public String getBuildTimeString() {
-        return this.properties.getProperty("build-time");
-    }
+   public String getGitSha1() {
+      return this.properties.getProperty("git-sha-1");
+   }
+
+   public String getVersion() {
+      return this.properties.getProperty("version");
+   }
+
+   public String getBuildTimeString() {
+      return this.properties.getProperty("build-time");
+   }
 }
-

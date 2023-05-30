@@ -1,223 +1,219 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.server.items;
 
 public interface DbStrings {
-    public String createItem();
+   String createItem();
 
-    public String transferItem();
+   String transferItem();
 
-    public String loadItem();
+   String loadItem();
 
-    public String loadEffects();
+   String loadEffects();
 
-    public String getLock();
+   String getLock();
 
-    public String getKeys();
+   String getKeys();
 
-    public String addKey();
+   String addKey();
 
-    public String removeKey();
+   String removeKey();
 
-    public String createLock();
+   String createLock();
 
-    public String setZoneId();
+   String setZoneId();
 
-    public String getZoneId();
+   String getZoneId();
 
-    public String setParentId();
+   String setParentId();
 
-    public String getParentId();
+   String getParentId();
 
-    public String setTemplateId();
+   String setTemplateId();
 
-    public String getTemplateId();
+   String getTemplateId();
 
-    public String setInscription();
+   String setInscription();
 
-    public String getInscription();
+   String getInscription();
 
-    public String createInscription();
+   String createInscription();
 
-    public String setName();
+   String setName();
 
-    public String getName();
+   String getName();
 
-    public String setRarity();
+   String setRarity();
 
-    public String setDescription();
+   String setDescription();
 
-    public String getDescription();
+   String getDescription();
 
-    public String setPlace();
+   String setPlace();
 
-    public String getPlace();
+   String getPlace();
 
-    public String setQualityLevel();
+   String setQualityLevel();
 
-    public String getQualityLevel();
+   String getQualityLevel();
 
-    public String setOriginalQualityLevel();
+   String setOriginalQualityLevel();
 
-    public String getOriginalQualityLevel();
+   String getOriginalQualityLevel();
 
-    public String setLastMaintained();
+   String setLastMaintained();
 
-    public String setLastMaintainedOld();
+   String setLastMaintainedOld();
 
-    public String getLastMaintained();
+   String getLastMaintained();
 
-    public String setOwnerId();
+   String setOwnerId();
 
-    public String setLastOwnerId();
+   String setLastOwnerId();
 
-    public String getOwnerId();
+   String getOwnerId();
 
-    public String setPosXYZRotation();
+   String setPosXYZRotation();
 
-    public String getPosXYZRotation();
+   String getPosXYZRotation();
 
-    public String setPosXYZ();
+   String setPosXYZ();
 
-    public String getPosXYZ();
+   String getPosXYZ();
 
-    public String setPosXY();
+   String setPosXY();
 
-    public String getPosXY();
+   String getPosXY();
 
-    public String setPosX();
+   String setPosX();
 
-    public String getPosX();
+   String getPosX();
 
-    public String setWeight();
+   String setWeight();
 
-    public String getWeight();
+   String getWeight();
 
-    public String setPosY();
+   String setPosY();
 
-    public String getPosY();
+   String getPosY();
 
-    public String setPosZ();
+   String setPosZ();
 
-    public String getPosZ();
+   String getPosZ();
 
-    public String setRotation();
+   String setRotation();
 
-    public String getRotation();
+   String getRotation();
 
-    public String savePos();
+   String savePos();
 
-    public String clearItem();
+   String clearItem();
 
-    public String setDamage();
+   String setDamage();
 
-    public String setDamageOld();
+   String setDamageOld();
 
-    public String getDamage();
+   String getDamage();
 
-    public String setLocked();
+   String setLocked();
 
-    public String getLocked();
+   String getLocked();
 
-    public String setTransferred();
+   String setTransferred();
 
-    public String getAllItems();
+   String getAllItems();
 
-    public String getItem();
+   String getItem();
 
-    public String setBless();
+   String setBless();
 
-    public String setSizeX();
+   String setSizeX();
 
-    public String getSizeX();
+   String getSizeX();
 
-    public String setSizeY();
+   String setSizeY();
 
-    public String getSizeY();
+   String getSizeY();
 
-    public String setSizeZ();
+   String setSizeZ();
 
-    public String getSizeZ();
+   String getSizeZ();
 
-    public String setLockId();
+   String setLockId();
 
-    public String setPrice();
+   String setPrice();
 
-    public String setAuxData();
+   String setAuxData();
 
-    public String setCreationState();
+   String setCreationState();
 
-    public String setRealTemplate();
+   String setRealTemplate();
 
-    public String setColor();
+   String setColor();
 
-    public String setEnchant();
+   String setEnchant();
 
-    public String setBanked();
+   String setBanked();
 
-    public String getData();
+   String getData();
 
-    public String createData();
+   String createData();
 
-    public String updateData1();
+   String updateData1();
 
-    public String updateData2();
+   String updateData2();
 
-    public String updateExtra1();
+   String updateExtra1();
 
-    public String updateExtra2();
+   String updateExtra2();
 
-    public String updateAllData();
+   String updateAllData();
 
-    public String setTemperature();
+   String setTemperature();
 
-    public String getTemperature();
+   String getTemperature();
 
-    public String setMaterial();
+   String setMaterial();
 
-    public String setWornAsArmour();
+   String setWornAsArmour();
 
-    public String setFemale();
+   String setFemale();
 
-    public String setMailed();
+   String setMailed();
 
-    public String setCreator();
+   String setCreator();
 
-    public String getZoneItems();
+   String getZoneItems();
 
-    public String getCreatureItems();
+   String getCreatureItems();
 
-    public String getPreloadedItems();
+   String getPreloadedItems();
 
-    public String getCreatureItemsNonTransferred();
+   String getCreatureItemsNonTransferred();
 
-    public String updateLastMaintainedBankItem();
+   String updateLastMaintainedBankItem();
 
-    public String getItemWeights();
+   String getItemWeights();
 
-    public String getOwnedItems();
+   String getOwnedItems();
 
-    public String deleteByOwnerId();
+   String deleteByOwnerId();
 
-    public String deleteTransferedItem();
+   String deleteTransferedItem();
 
-    public String deleteItem();
+   String deleteItem();
 
-    public String getRecycledItems();
+   String getRecycledItems();
 
-    public String getItemsForZone();
+   String getItemsForZone();
 
-    public String setHidden();
+   String setHidden();
 
-    public String setSettings();
+   String setSettings();
 
-    public String setMailTimes();
+   String setMailTimes();
 
-    public String freeze();
+   String freeze();
 
-    public String thaw();
+   String thaw();
 
-    public String getDbStringsType();
+   String getDbStringsType();
 }
-

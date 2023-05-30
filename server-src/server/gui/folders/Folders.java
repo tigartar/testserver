@@ -1,183 +1,163 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.server.gui.folders;
 
-import com.wurmonline.server.gui.folders.DistFolder;
-import com.wurmonline.server.gui.folders.GameFolder;
-import com.wurmonline.server.gui.folders.PresetFolder;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 public enum Folders {
-    INSTANCE;
+   INSTANCE;
 
-    private static final Logger logger;
-    private HashMap<String, GameFolder> gameFolders = new HashMap();
-    private HashMap<String, PresetFolder> presets = new HashMap();
-    private GameFolder current;
-    private DistFolder dist;
-    private Path distPath = Paths.get(System.getProperty("wurm.distRoot", "./dist"), new String[0]);
-    private Path gamesPath = Paths.get(System.getProperty("wurm.gameFolderRoot", "."), new String[0]);
-    private Path presetsPath = Paths.get(System.getProperty("wurm.presetsRoot", "./presets"), new String[0]);
+   private static final Logger logger = Logger.getLogger(Folders.class.getName());
+   private HashMap<String, GameFolder> gameFolders = new HashMap<>();
+   private HashMap<String, PresetFolder> presets = new HashMap<>();
+   private GameFolder current;
+   private DistFolder dist;
+   private Path distPath = Paths.get(System.getProperty("wurm.distRoot", "./dist"));
+   private Path gamesPath = Paths.get(System.getProperty("wurm.gameFolderRoot", "."));
+   private Path presetsPath = Paths.get(System.getProperty("wurm.presetsRoot", "./presets"));
 
-    public static Folders getInstance() {
-        return INSTANCE;
-    }
+   public static Folders getInstance() {
+      return INSTANCE;
+   }
 
-    public static ArrayList<GameFolder> getGameFolders() {
-        ArrayList<GameFolder> gameFolders = new ArrayList<GameFolder>();
-        gameFolders.addAll(Folders.getInstance().gameFolders.values());
-        return gameFolders;
-    }
+   public static ArrayList<GameFolder> getGameFolders() {
+      ArrayList<GameFolder> gameFolders = new ArrayList<>();
+      gameFolders.addAll(getInstance().gameFolders.values());
+      return gameFolders;
+   }
 
-    @Nullable
-    public static GameFolder getGameFolder(String folderName) {
-        return Folders.getInstance().gameFolders.get(folderName);
-    }
+   @Nullable
+   public static GameFolder getGameFolder(String folderName) {
+      return getInstance().gameFolders.get(folderName);
+   }
 
-    public static boolean setCurrent(GameFolder gameFolder) {
-        if (Folders.getInstance().current != null && !Folders.getInstance().current.setCurrent(false)) {
+   public static boolean setCurrent(GameFolder gameFolder) {
+      if (getInstance().current != null && !getInstance().current.setCurrent(false)) {
+         return false;
+      } else {
+         getInstance().current = gameFolder;
+         if (!gameFolder.setCurrent(true)) {
             return false;
-        }
-        Folders.getInstance().current = gameFolder;
-        if (!gameFolder.setCurrent(true)) {
-            return false;
-        }
-        logger.info("Current game folder: " + gameFolder.getName());
-        return true;
-    }
+         } else {
+            logger.info("Current game folder: " + gameFolder.getName());
+            return true;
+         }
+      }
+   }
 
-    public static void clear() {
-        Folders.getInstance().gameFolders.clear();
-        Folders.getInstance().current = null;
-        logger.info("Game folders cleared.");
-    }
+   public static void clear() {
+      getInstance().gameFolders.clear();
+      getInstance().current = null;
+      logger.info("Game folders cleared.");
+   }
 
-    public static GameFolder getCurrent() {
-        return Folders.getInstance().current;
-    }
+   public static GameFolder getCurrent() {
+      return getInstance().current;
+   }
 
-    public static boolean loadGames() {
-        return Folders.loadGamesFrom(Folders.getInstance().gamesPath);
-    }
+   public static boolean loadGames() {
+      return loadGamesFrom(getInstance().gamesPath);
+   }
 
-    /*
-     * Enabled aggressive block sorting
-     * Enabled unnecessary exception pruning
-     * Enabled aggressive exception aggregation
-     */
-    public static boolean loadGamesFrom(Path parent) {
-        if (!Folders.getInstance().gameFolders.isEmpty()) {
-            Folders.getInstance().gameFolders = new HashMap();
-        }
-        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(parent);){
-            block21: {
-                Iterator<Path> iterator = directoryStream.iterator();
-                while (iterator.hasNext()) {
-                    Path path = iterator.next();
-                    GameFolder gameFolder = GameFolder.fromPath(path);
-                    if (gameFolder == null) continue;
-                    Folders.getInstance().gameFolders.put(gameFolder.getName(), gameFolder);
-                    if (!gameFolder.isCurrent()) continue;
-                    if (Folders.getInstance().current == null) {
-                        Folders.getInstance().current = gameFolder;
-                        continue;
-                    }
-                    if (gameFolder.setCurrent(false)) {
-                        continue;
-                    }
-                    break block21;
-                }
-                return true;
+   public static boolean loadGamesFrom(Path parent) {
+      if (!getInstance().gameFolders.isEmpty()) {
+         getInstance().gameFolders = new HashMap<>();
+      }
+
+      try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(parent)) {
+         for(Path path : directoryStream) {
+            GameFolder gameFolder = GameFolder.fromPath(path);
+            if (gameFolder != null) {
+               getInstance().gameFolders.put(gameFolder.getName(), gameFolder);
+               if (gameFolder.isCurrent()) {
+                  if (getInstance().current == null) {
+                     getInstance().current = gameFolder;
+                  } else if (!gameFolder.setCurrent(false)) {
+                     return false;
+                  }
+               }
             }
-            boolean bl = false;
-            return bl;
-        }
-        catch (IOException ex) {
-            logger.warning("IOException while reading game folders");
-            ex.printStackTrace();
-            return false;
-        }
-    }
+         }
 
-    public static boolean loadDist() {
-        Folders.getInstance().dist = DistFolder.fromPath(Folders.getInstance().distPath);
-        return Folders.getInstance().dist != null;
-    }
+         return true;
+      } catch (IOException var19) {
+         logger.warning("IOException while reading game folders");
+         var19.printStackTrace();
+         return false;
+      }
+   }
 
-    public static DistFolder getDist() {
-        if (Folders.getInstance().dist == null && !Folders.loadDist()) {
-            logger.warning("Unable to load 'dist' folder, please run Steam validation");
-            return new DistFolder(Folders.getInstance().distPath);
-        }
-        return Folders.getInstance().dist;
-    }
+   public static boolean loadDist() {
+      getInstance().dist = DistFolder.fromPath(getInstance().distPath);
+      return getInstance().dist != null;
+   }
 
-    public static boolean loadPresets() {
-        if (!Folders.getInstance().presets.isEmpty()) {
-            Folders.getInstance().presets = new HashMap();
-        }
-        if (Folders.getInstance().dist == null && !Folders.loadDist()) {
-            logger.warning("Unable to load 'dist' folder, please run Steam validation");
-            return false;
-        }
-        if (!Folders.loadPresetsFrom(Folders.getInstance().dist.getPath())) {
-            logger.warning("Unable to load presets from 'dist', please run Steam validation");
-            return false;
-        }
-        if (!Files.exists(Folders.getInstance().presetsPath, new LinkOption[0])) {
+   public static DistFolder getDist() {
+      if (getInstance().dist == null && !loadDist()) {
+         logger.warning("Unable to load 'dist' folder, please run Steam validation");
+         return new DistFolder(getInstance().distPath);
+      } else {
+         return getInstance().dist;
+      }
+   }
+
+   public static boolean loadPresets() {
+      if (!getInstance().presets.isEmpty()) {
+         getInstance().presets = new HashMap<>();
+      }
+
+      if (getInstance().dist == null && !loadDist()) {
+         logger.warning("Unable to load 'dist' folder, please run Steam validation");
+         return false;
+      } else if (!loadPresetsFrom(getInstance().dist.getPath())) {
+         logger.warning("Unable to load presets from 'dist', please run Steam validation");
+         return false;
+      } else {
+         if (!Files.exists(getInstance().presetsPath)) {
             try {
-                Files.createDirectory(Folders.getInstance().presetsPath, new FileAttribute[0]);
+               Files.createDirectory(getInstance().presetsPath);
+            } catch (IOException var1) {
+               logger.warning("Could not create presets folder");
+               return false;
             }
-            catch (IOException ex) {
-                logger.warning("Could not create presets folder");
-                return false;
+         }
+
+         return loadPresetsFrom(getInstance().presetsPath);
+      }
+   }
+
+   private static boolean loadPresetsFrom(Path parent) {
+      try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(parent)) {
+         for(Path path : directoryStream) {
+            PresetFolder folder = PresetFolder.fromPath(path);
+            if (folder != null) {
+               getInstance().presets.put(folder.getName(), folder);
             }
-        }
-        return Folders.loadPresetsFrom(Folders.getInstance().presetsPath);
-    }
+         }
 
-    private static boolean loadPresetsFrom(Path parent) {
-        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(parent);){
-            for (Path path : directoryStream) {
-                PresetFolder folder = PresetFolder.fromPath(path);
-                if (folder == null) continue;
-                Folders.getInstance().presets.put(folder.getName(), folder);
-            }
-        }
-        catch (IOException ex) {
-            logger.warning("IOException while reading game folders");
-            ex.printStackTrace();
-            return false;
-        }
-        return true;
-    }
+         return true;
+      } catch (IOException var16) {
+         logger.warning("IOException while reading game folders");
+         var16.printStackTrace();
+         return false;
+      }
+   }
 
-    public static Path getGamesPath() {
-        return Folders.getInstance().gamesPath;
-    }
+   public static Path getGamesPath() {
+      return getInstance().gamesPath;
+   }
 
-    public static void addGame(GameFolder folder) {
-        Folders.getInstance().gameFolders.put(folder.getName(), folder);
-    }
+   public static void addGame(GameFolder folder) {
+      getInstance().gameFolders.put(folder.getName(), folder);
+   }
 
-    public static void removeGame(GameFolder folder) {
-        Folders.getInstance().gameFolders.remove(folder.getName());
-    }
-
-    static {
-        logger = Logger.getLogger(Folders.class.getName());
-    }
+   public static void removeGame(GameFolder folder) {
+      getInstance().gameFolders.remove(folder.getName());
+   }
 }
-

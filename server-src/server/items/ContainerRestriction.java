@@ -1,64 +1,61 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.server.items;
 
-import com.wurmonline.server.items.Item;
-import com.wurmonline.server.items.ItemTemplateFactory;
 import java.util.ArrayList;
 
 public class ContainerRestriction {
-    private final boolean onlyOneOf;
-    private ArrayList<Integer> itemTemplateIds;
-    private String emptySlotName = null;
+   private final boolean onlyOneOf;
+   private ArrayList<Integer> itemTemplateIds;
+   private String emptySlotName = null;
 
-    public ContainerRestriction(boolean onlyOneOf, int ... itemTemplateId) {
-        this.onlyOneOf = onlyOneOf;
-        this.itemTemplateIds = new ArrayList();
-        for (int i : itemTemplateId) {
-            this.itemTemplateIds.add(i);
-        }
-    }
+   public ContainerRestriction(boolean onlyOneOf, int... itemTemplateId) {
+      this.onlyOneOf = onlyOneOf;
+      this.itemTemplateIds = new ArrayList<>();
 
-    public ContainerRestriction(boolean onlyOneOf, String emptySlotName, int ... itemTemplateId) {
-        this(onlyOneOf, itemTemplateId);
-        this.setEmptySlotName(emptySlotName);
-    }
+      for(int i : itemTemplateId) {
+         this.itemTemplateIds.add(i);
+      }
+   }
 
-    public boolean canInsertItem(Item[] existing, Item toInsert) {
-        if (!this.itemTemplateIds.contains(toInsert.getTemplateId())) {
-            return false;
-        }
-        if (this.onlyOneOf) {
-            for (Item i : existing) {
-                if (!this.itemTemplateIds.contains(i.getTemplateId())) continue;
-                return false;
+   public ContainerRestriction(boolean onlyOneOf, String emptySlotName, int... itemTemplateId) {
+      this(onlyOneOf, itemTemplateId);
+      this.setEmptySlotName(emptySlotName);
+   }
+
+   public boolean canInsertItem(Item[] existing, Item toInsert) {
+      if (!this.itemTemplateIds.contains(toInsert.getTemplateId())) {
+         return false;
+      } else {
+         if (this.onlyOneOf) {
+            for(Item i : existing) {
+               if (this.itemTemplateIds.contains(i.getTemplateId())) {
+                  return false;
+               }
             }
-        }
-        return true;
-    }
+         }
 
-    public void setEmptySlotName(String name) {
-        this.emptySlotName = name;
-    }
+         return true;
+      }
+   }
 
-    public String getEmptySlotName() {
-        if (this.emptySlotName != null) {
-            return this.emptySlotName;
-        }
-        return "empty " + ItemTemplateFactory.getInstance().getTemplateName(this.getEmptySlotTemplateId()) + " slot";
-    }
+   public void setEmptySlotName(String name) {
+      this.emptySlotName = name;
+   }
 
-    public int getEmptySlotTemplateId() {
-        return this.itemTemplateIds.get(0);
-    }
+   public String getEmptySlotName() {
+      return this.emptySlotName != null
+         ? this.emptySlotName
+         : "empty " + ItemTemplateFactory.getInstance().getTemplateName(this.getEmptySlotTemplateId()) + " slot";
+   }
 
-    public boolean contains(int id) {
-        return this.itemTemplateIds.contains(id);
-    }
+   public int getEmptySlotTemplateId() {
+      return this.itemTemplateIds.get(0);
+   }
 
-    public boolean doesItemOverrideSlot(Item toInsert) {
-        return this.itemTemplateIds.contains(toInsert.getTemplateId());
-    }
+   public boolean contains(int id) {
+      return this.itemTemplateIds.contains(id);
+   }
+
+   public boolean doesItemOverrideSlot(Item toInsert) {
+      return this.itemTemplateIds.contains(toInsert.getTemplateId());
+   }
 }
-

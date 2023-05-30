@@ -1,0 +1,68 @@
+.root{
+
+}
+
+.button{
+         
+    -fx-background-image: url("img/DefaultButton_Server.jpg");
+	-fx-background-size: 100% 100%;
+	-fx-background-color: transparent;
+}
+
+.button:pressed{
+         
+    -fx-background-image: url("img/DefaultButton_pressed_Server.jpg");
+	-fx-background-size: 100% 100%;
+	-fx-background-color: transparent;
+}
+
+.buttonStartServer{         
+    -fx-background-image: url("img/GreenButton_Server.jpg");
+	-fx-background-size: 100% 100%;
+	-fx-background-color: transparent;
+}
+
+.buttonStartServer:pressed
+{         
+    -fx-background-image: url("img/GreenButton_pressed_Server.jpg");
+	-fx-background-size: 100% 100%;
+	-fx-background-color: transparent;
+}
+
+.buttonShutdownServer{         
+    -fx-background-image: url("img/RedButton_Server.jpg");
+	-fx-background-size: 100% 100%;
+	-fx-background-color: transparent;
+}
+
+.buttonShutdownServer:pressed{         
+    -fx-background-image: url("img/RedButton_pressed_Server.jpg");
+	-fx-background-size: 100% 100%;
+	-fx-background-color: transparent;
+}
+
+.menu-bar { 
+    -fx-background-color: #aeb5ba, linear-gradient(to bottom, #ecf4fa 0%, #ced4d9 100%);
+    -fx-background-insets: 0, 0 0 1 0;
+}
+
+.menu-bar .menu .label {
+    -fx-text-fill: #2d3e4c;
+}
+
+.split-pane > .split-pane-divider {
+	
+    -fx-background-color: linear-gradient(to right, #ecf4fa 0%, #ced4d9 100%);
+    -fx-padding: 0 3 0 3;
+}
+.anchor-pane {
+	-fx-background-image: url("img/guibg.jpg");
+    -fx-background-repeat: stretch;
+    -fx-background-position: center center;
+}
+.scroll-pane {
+    -fx-background-insets: 0, 0;
+    -fx-padding: 0;
+    -fx-background-color: linear-gradient(to right, #ecf4fa 0%, #ced4d9 100%);
+    -fx-padding: 0 3 0 3;
+}

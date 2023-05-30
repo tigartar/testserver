@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.server.epic;
 
 import com.wurmonline.server.DbConnector;
@@ -22,240 +19,204 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MissionHelper
-implements MiscConstants {
-    private static final Logger logger = Logger.getLogger(MissionHelper.class.getName());
-    private static final String LOAD_ALL_MISSION_HELPERS = "SELECT * FROM MISSIONHELPERS";
-    private static final String INSERT_MISSION_HELPER = DbConnector.isUseSqlite() ? "INSERT OR IGNORE INTO MISSIONHELPERS (NUMS, MISSIONID, PLAYERID) VALUES(?,?,?)" : "INSERT IGNORE INTO MISSIONHELPERS (NUMS, MISSIONID, PLAYERID) VALUES(?,?,?)";
-    private static final String MOVE_MISSION_HELPER = "UPDATE MISSIONHELPERS SET MISSIONID=? WHERE MISSIONID=?";
-    private static final String DELETE_MISSION_HELPER = "DELETE FROM MISSIONHELPERS WHERE MISSIONID=?";
-    private static final String UPDATE_MISSION_HELPER = "UPDATE MISSIONHELPERS SET NUMS=? WHERE MISSIONID=? AND PLAYERID=?";
-    private static final Map<Long, MissionHelper> MISSION_HELPERS = new ConcurrentHashMap<Long, MissionHelper>();
-    private static boolean INITIALIZED = false;
-    private final Map<Long, Integer> missionsHelped = new ConcurrentHashMap<Long, Integer>();
-    private final long playerId;
+public class MissionHelper implements MiscConstants {
+   private static final Logger logger = Logger.getLogger(MissionHelper.class.getName());
+   private static final String LOAD_ALL_MISSION_HELPERS = "SELECT * FROM MISSIONHELPERS";
+   private static final String INSERT_MISSION_HELPER = DbConnector.isUseSqlite()
+      ? "INSERT OR IGNORE INTO MISSIONHELPERS (NUMS, MISSIONID, PLAYERID) VALUES(?,?,?)"
+      : "INSERT IGNORE INTO MISSIONHELPERS (NUMS, MISSIONID, PLAYERID) VALUES(?,?,?)";
+   private static final String MOVE_MISSION_HELPER = "UPDATE MISSIONHELPERS SET MISSIONID=? WHERE MISSIONID=?";
+   private static final String DELETE_MISSION_HELPER = "DELETE FROM MISSIONHELPERS WHERE MISSIONID=?";
+   private static final String UPDATE_MISSION_HELPER = "UPDATE MISSIONHELPERS SET NUMS=? WHERE MISSIONID=? AND PLAYERID=?";
+   private static final Map<Long, MissionHelper> MISSION_HELPERS = new ConcurrentHashMap<>();
+   private static boolean INITIALIZED = false;
+   private final Map<Long, Integer> missionsHelped = new ConcurrentHashMap<>();
+   private final long playerId;
 
-    public MissionHelper(long playerid) {
-        this.playerId = playerid;
-        MissionHelper.addHelper(this);
-    }
+   public MissionHelper(long playerid) {
+      this.playerId = playerid;
+      addHelper(this);
+   }
 
-    public final void increaseHelps(long missionId) {
-        this.setHelps(missionId, this.getHelps(missionId) + 1);
-    }
+   public final void increaseHelps(long missionId) {
+      this.setHelps(missionId, this.getHelps(missionId) + 1);
+   }
 
-    public final void increaseHelps(long missionId, int nums) {
-        this.setHelps(missionId, this.getHelps(missionId) + nums);
-    }
+   public final void increaseHelps(long missionId, int nums) {
+      this.setHelps(missionId, this.getHelps(missionId) + nums);
+   }
 
-    public static final void addHelper(MissionHelper helper) {
-        MISSION_HELPERS.put(helper.getPlayerId(), helper);
-    }
+   public static final void addHelper(MissionHelper helper) {
+      MISSION_HELPERS.put(helper.getPlayerId(), helper);
+   }
 
-    private final void setHelpsAtLoad(long missionId, int nums) {
-        this.missionsHelped.put(missionId, nums);
-    }
+   private final void setHelpsAtLoad(long missionId, int nums) {
+      this.missionsHelped.put(missionId, nums);
+   }
 
-    public static final Map<Long, MissionHelper> getHelpers() {
-        return MISSION_HELPERS;
-    }
+   public static final Map<Long, MissionHelper> getHelpers() {
+      return MISSION_HELPERS;
+   }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
-    public static final void loadAll() {
-        if (!INITIALIZED) {
-            Connection dbcon = null;
-            PreparedStatement ps = null;
-            ResultSet rs = null;
-            try {
-                dbcon = DbConnector.getZonesDbCon();
-                ps = dbcon.prepareStatement(LOAD_ALL_MISSION_HELPERS);
-                rs = ps.executeQuery();
-                while (rs.next()) {
-                    long helperId = rs.getLong("PLAYERID");
-                    MissionHelper helper = MISSION_HELPERS.get(helperId);
-                    if (helper == null) {
-                        helper = new MissionHelper(helperId);
-                    }
-                    helper.setHelpsAtLoad(rs.getLong("MISSIONID"), rs.getInt("NUMS"));
-                }
-                INITIALIZED = true;
+   public static final void loadAll() {
+      if (!INITIALIZED) {
+         Connection dbcon = null;
+         PreparedStatement ps = null;
+         ResultSet rs = null;
+
+         try {
+            dbcon = DbConnector.getZonesDbCon();
+            ps = dbcon.prepareStatement("SELECT * FROM MISSIONHELPERS");
+
+            MissionHelper helper;
+            for(rs = ps.executeQuery(); rs.next(); helper.setHelpsAtLoad(rs.getLong("MISSIONID"), rs.getInt("NUMS"))) {
+               long helperId = rs.getLong("PLAYERID");
+               helper = MISSION_HELPERS.get(helperId);
+               if (helper == null) {
+                  helper = new MissionHelper(helperId);
+               }
             }
-            catch (SQLException sqx) {
-                try {
-                    logger.log(Level.WARNING, "Failed to load epic item helpers.", sqx);
-                    INITIALIZED = false;
-                }
-                catch (Throwable throwable) {
-                    DbUtilities.closeDatabaseObjects(ps, rs);
-                    DbConnector.returnConnection(dbcon);
-                    throw throwable;
-                }
-                DbUtilities.closeDatabaseObjects(ps, rs);
-                DbConnector.returnConnection(dbcon);
-            }
+
+            INITIALIZED = true;
+         } catch (SQLException var9) {
+            logger.log(Level.WARNING, "Failed to load epic item helpers.", (Throwable)var9);
+            INITIALIZED = false;
+         } finally {
             DbUtilities.closeDatabaseObjects(ps, rs);
             DbConnector.returnConnection(dbcon);
-        }
-    }
+         }
+      }
+   }
 
-    public static final void printHelpForMission(long missionId, String missionName, Creature performer) {
-        float total = 0.0f;
-        if (!INITIALIZED) {
-            MissionHelper.loadAll();
-        }
-        for (MissionHelper helper : MISSION_HELPERS.values()) {
-            total += (float)helper.getHelps(missionId);
-        }
-        if (total > 0.0f) {
-            SimplePopup sp = new SimplePopup(performer, "Plaque on " + missionName, "These helped:", missionId, total);
-            sp.sendQuestion();
-        }
-    }
+   public static final void printHelpForMission(long missionId, String missionName, Creature performer) {
+      float total = 0.0F;
+      if (!INITIALIZED) {
+         loadAll();
+      }
 
-    public static final void addKarmaForItem(long itemId) {
-        for (MissionHelper helper : MISSION_HELPERS.values()) {
-            int i = helper.getHelps(itemId);
-            if (i <= 10) continue;
+      for(MissionHelper helper : MISSION_HELPERS.values()) {
+         total += (float)helper.getHelps(missionId);
+      }
+
+      if (total > 0.0F) {
+         SimplePopup sp = new SimplePopup(performer, "Plaque on " + missionName, "These helped:", missionId, total);
+         sp.sendQuestion();
+      }
+   }
+
+   public static final void addKarmaForItem(long itemId) {
+      for(MissionHelper helper : MISSION_HELPERS.values()) {
+         int i = helper.getHelps(itemId);
+         if (i > 10) {
             try {
-                Player p = Players.getInstance().getPlayer(helper.getPlayerId());
-                p.modifyKarma(i / 10);
+               Player p = Players.getInstance().getPlayer(helper.getPlayerId());
+               p.modifyKarma(i / 10);
+            } catch (NoSuchPlayerException var7) {
+               PlayerInfo pinf = PlayerInfoFactory.getPlayerInfoWithWurmId(helper.getPlayerId());
+               pinf.setKarma(pinf.getKarma() + i / 10);
             }
-            catch (NoSuchPlayerException nsp) {
-                PlayerInfo pinf = PlayerInfoFactory.getPlayerInfoWithWurmId(helper.getPlayerId());
-                pinf.setKarma(pinf.getKarma() + i / 10);
-            }
-        }
-    }
+         }
+      }
+   }
 
-    public static final MissionHelper getOrCreateHelper(long playerId) {
-        MissionHelper helper = MISSION_HELPERS.get(playerId);
-        if (helper == null) {
-            helper = new MissionHelper(playerId);
-        }
-        return helper;
-    }
+   public static final MissionHelper getOrCreateHelper(long playerId) {
+      MissionHelper helper = MISSION_HELPERS.get(playerId);
+      if (helper == null) {
+         helper = new MissionHelper(playerId);
+      }
 
-    public final long getPlayerId() {
-        return this.playerId;
-    }
+      return helper;
+   }
 
-    public final int getHelps(long missionId) {
-        Integer nums = this.missionsHelped.get(missionId);
-        if (nums == null) {
-            return 0;
-        }
-        return nums;
-    }
+   public final long getPlayerId() {
+      return this.playerId;
+   }
 
-    private final void moveLocalMissionId(long oldMissionId, long newMissionId) {
-        int oldHelps = this.getHelps(oldMissionId);
-        if (oldHelps > 0) {
-            this.missionsHelped.remove(oldMissionId);
-            this.missionsHelped.put(newMissionId, oldHelps);
-        }
-    }
+   public final int getHelps(long missionId) {
+      Integer nums = this.missionsHelped.get(missionId);
+      return nums == null ? 0 : nums;
+   }
 
-    private final void removeMissionId(long missionId) {
-        this.missionsHelped.remove(missionId);
-    }
+   private final void moveLocalMissionId(long oldMissionId, long newMissionId) {
+      int oldHelps = this.getHelps(oldMissionId);
+      if (oldHelps > 0) {
+         this.missionsHelped.remove(oldMissionId);
+         this.missionsHelped.put(newMissionId, oldHelps);
+      }
+   }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
-    public static final void moveGlobalMissionId(long oldmissionId, long newMissionId) {
-        Connection dbcon = null;
-        PreparedStatement ps = null;
-        try {
+   private final void removeMissionId(long missionId) {
+      this.missionsHelped.remove(missionId);
+   }
+
+   public static final void moveGlobalMissionId(long oldmissionId, long newMissionId) {
+      Connection dbcon = null;
+      PreparedStatement ps = null;
+
+      try {
+         dbcon = DbConnector.getZonesDbCon();
+         ps = dbcon.prepareStatement("UPDATE MISSIONHELPERS SET MISSIONID=? WHERE MISSIONID=?");
+         ps.setLong(1, newMissionId);
+         ps.setLong(2, oldmissionId);
+         ps.executeUpdate();
+
+         for(MissionHelper h : MISSION_HELPERS.values()) {
+            h.moveLocalMissionId(oldmissionId, newMissionId);
+         }
+      } catch (SQLException var11) {
+         logger.log(Level.WARNING, "Failed to move epic mission helps from mission " + oldmissionId + ", to" + newMissionId, (Throwable)var11);
+      } finally {
+         DbUtilities.closeDatabaseObjects(ps, null);
+         DbConnector.returnConnection(dbcon);
+      }
+   }
+
+   public static final void deleteMissionId(long missionId) {
+      Connection dbcon = null;
+      PreparedStatement ps = null;
+
+      try {
+         dbcon = DbConnector.getZonesDbCon();
+         ps = dbcon.prepareStatement("DELETE FROM MISSIONHELPERS WHERE MISSIONID=?");
+         ps.setLong(1, missionId);
+         ps.executeUpdate();
+
+         for(MissionHelper h : MISSION_HELPERS.values()) {
+            h.removeMissionId(missionId);
+         }
+      } catch (SQLException var9) {
+         logger.log(Level.WARNING, "Failed to delete epic mission helps for mission " + missionId, (Throwable)var9);
+      } finally {
+         DbUtilities.closeDatabaseObjects(ps, null);
+         DbConnector.returnConnection(dbcon);
+      }
+   }
+
+   public final void setHelps(long missionId, int helps) {
+      int oldHelps = this.getHelps(missionId);
+      if (oldHelps != helps) {
+         this.missionsHelped.put(missionId, helps);
+         Connection dbcon = null;
+         PreparedStatement ps = null;
+
+         try {
             dbcon = DbConnector.getZonesDbCon();
-            ps = dbcon.prepareStatement(MOVE_MISSION_HELPER);
-            ps.setLong(1, newMissionId);
-            ps.setLong(2, oldmissionId);
-            ps.executeUpdate();
-            for (MissionHelper h : MISSION_HELPERS.values()) {
-                h.moveLocalMissionId(oldmissionId, newMissionId);
+            if (oldHelps == 0) {
+               ps = dbcon.prepareStatement(INSERT_MISSION_HELPER);
+            } else {
+               ps = dbcon.prepareStatement("UPDATE MISSIONHELPERS SET NUMS=? WHERE MISSIONID=? AND PLAYERID=?");
             }
-        }
-        catch (SQLException sqx) {
-            try {
-                logger.log(Level.WARNING, "Failed to move epic mission helps from mission " + oldmissionId + ", to" + newMissionId, sqx);
-            }
-            catch (Throwable throwable) {
-                DbUtilities.closeDatabaseObjects(ps, null);
-                DbConnector.returnConnection(dbcon);
-                throw throwable;
-            }
-            DbUtilities.closeDatabaseObjects(ps, null);
-            DbConnector.returnConnection(dbcon);
-        }
-        DbUtilities.closeDatabaseObjects(ps, null);
-        DbConnector.returnConnection(dbcon);
-    }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
-    public static final void deleteMissionId(long missionId) {
-        Connection dbcon = null;
-        PreparedStatement ps = null;
-        try {
-            dbcon = DbConnector.getZonesDbCon();
-            ps = dbcon.prepareStatement(DELETE_MISSION_HELPER);
-            ps.setLong(1, missionId);
+            ps.setInt(1, helps);
+            ps.setLong(2, missionId);
+            ps.setLong(3, this.playerId);
             ps.executeUpdate();
-            for (MissionHelper h : MISSION_HELPERS.values()) {
-                h.removeMissionId(missionId);
-            }
-        }
-        catch (SQLException sqx) {
-            try {
-                logger.log(Level.WARNING, "Failed to delete epic mission helps for mission " + missionId, sqx);
-            }
-            catch (Throwable throwable) {
-                DbUtilities.closeDatabaseObjects(ps, null);
-                DbConnector.returnConnection(dbcon);
-                throw throwable;
-            }
+         } catch (SQLException var11) {
+            logger.log(Level.WARNING, "Failed to save epic item helps " + helps + " for mission " + missionId + ", pid=" + this.playerId, (Throwable)var11);
+         } finally {
             DbUtilities.closeDatabaseObjects(ps, null);
             DbConnector.returnConnection(dbcon);
-        }
-        DbUtilities.closeDatabaseObjects(ps, null);
-        DbConnector.returnConnection(dbcon);
-    }
-
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
-    public final void setHelps(long missionId, int helps) {
-        int oldHelps = this.getHelps(missionId);
-        if (oldHelps != helps) {
-            this.missionsHelped.put(missionId, helps);
-            Connection dbcon = null;
-            PreparedStatement ps = null;
-            try {
-                dbcon = DbConnector.getZonesDbCon();
-                ps = oldHelps == 0 ? dbcon.prepareStatement(INSERT_MISSION_HELPER) : dbcon.prepareStatement(UPDATE_MISSION_HELPER);
-                ps.setInt(1, helps);
-                ps.setLong(2, missionId);
-                ps.setLong(3, this.playerId);
-                ps.executeUpdate();
-            }
-            catch (SQLException sqx) {
-                try {
-                    logger.log(Level.WARNING, "Failed to save epic item helps " + helps + " for mission " + missionId + ", pid=" + this.playerId, sqx);
-                }
-                catch (Throwable throwable) {
-                    DbUtilities.closeDatabaseObjects(ps, null);
-                    DbConnector.returnConnection(dbcon);
-                    throw throwable;
-                }
-                DbUtilities.closeDatabaseObjects(ps, null);
-                DbConnector.returnConnection(dbcon);
-            }
-            DbUtilities.closeDatabaseObjects(ps, null);
-            DbConnector.returnConnection(dbcon);
-        }
-    }
+         }
+      }
+   }
 }
-

@@ -1,41 +1,37 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.wurmonline.shared.util;
 
-import com.wurmonline.shared.util.ColoredChar;
-
 public class MulticolorLineSegment {
-    private byte color;
-    private String text;
+   private byte color;
+   private String text;
 
-    public MulticolorLineSegment(String text, byte color) {
-        this.text = text.replaceAll("\\p{C}", "?");
-        this.color = color;
-    }
+   public MulticolorLineSegment(String text, byte color) {
+      this.text = text.replaceAll("\\p{C}", "?");
+      this.color = color;
+   }
 
-    public ColoredChar[] convertToCharArray() {
-        ColoredChar[] arr = new ColoredChar[this.getText().length()];
-        for (int i = 0; i < this.getText().length(); ++i) {
-            arr[i] = new ColoredChar(this.getText().charAt(i), this.getColor());
-        }
-        return arr;
-    }
+   public ColoredChar[] convertToCharArray() {
+      ColoredChar[] arr = new ColoredChar[this.getText().length()];
 
-    public void setText(String text) {
-        this.text = text;
-    }
+      for(int i = 0; i < this.getText().length(); ++i) {
+         arr[i] = new ColoredChar(this.getText().charAt(i), this.getColor());
+      }
 
-    public String getText() {
-        return this.text;
-    }
+      return arr;
+   }
 
-    public void setColor(byte color) {
-        this.color = color;
-    }
+   public void setText(String text) {
+      this.text = text;
+   }
 
-    public byte getColor() {
-        return this.color;
-    }
+   public String getText() {
+      return this.text;
+   }
+
+   public void setColor(byte color) {
+      this.color = color;
+   }
+
+   public byte getColor() {
+      return this.color;
+   }
 }
-
